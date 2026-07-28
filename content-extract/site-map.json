@@ -1,0 +1,143 @@
+{
+  "source": "https://ambiencehomedesign.com/",
+  "extractedAt": "2026-07-28",
+  "meta": {
+    "title": "Luxury Interior Design & Architecture Marbella | Ambience",
+    "description": "Bespoke interior architecture, residential turnkey refurbishments, custom furniture design & luxury home styling by Andrea Böck in Marbella"
+  },
+  "navigation": [
+    { "label": "Request an Appointment", "href": "/request-an-appointment/" },
+    { "label": "Andrea Böck & The Team", "href": "/andrea-bock-team/" },
+    { "label": "About Us", "href": "/about-us/" },
+    { "label": "Projects", "href": "/projects/" },
+    { "label": "Testimonials", "href": "/testimonials/" },
+    { "label": "Our Services", "href": "/services/" },
+    { "label": "Outlet", "href": "/design-product-sales/" },
+    { "label": "Press", "href": "/press/" },
+    { "label": "Careers", "href": "/career/" },
+    { "label": "Contact", "href": "/contact/" }
+  ],
+  "social": [
+    { "label": "Facebook", "href": "https://www.facebook.com/ambiencehomedesign/" },
+    { "label": "Instagram", "href": "https://www.instagram.com/ambience_home_design/" }
+  ],
+  "legal": [
+    { "label": "Legal Notice", "href": "/legal-notice/" },
+    { "label": "Cookies Policy", "href": "/cookies-policy/" },
+    { "label": "Privacy Policy", "href": "/privacy-policy/" },
+    { "label": "Terms & Conditions", "href": "/terms-conditions/" }
+  ],
+  "homepageHeroCarousel": [
+    {
+      "title": "NEW SHOWROOM – GOLDEN MILE MARBELLA",
+      "cta": "View Project",
+      "href": "/project/new-showroom-golden-mile-marbella/",
+      "image": "https://ambiencehomedesign.com/wp-content/uploads/2024/05/Ambience-New-Showroom-Night-HD-9-1.jpg"
+    },
+    {
+      "title": "NEW VILLA IN BENAHAVIS",
+      "cta": "View Project",
+      "href": "/project/new-villa-in-benahavis/",
+      "image": "https://ambiencehomedesign.com/wp-content/uploads/2023/03/home-slider-2.jpg"
+    },
+    {
+      "title": "ECLIPSE KALEIDO IN MADRID",
+      "cta": "View Project",
+      "href": "/project/villa-eclipse-kalaido-madrid/",
+      "image": "https://ambiencehomedesign.com/wp-content/uploads/2025/04/eclipse-kaleido-la-zagaleta-ambience-home-design-1.jpg"
+    },
+    {
+      "title": "THE VIEW SHOW APARTMENT",
+      "cta": "View Project",
+      "href": "/project/the-view-penthouse-showhome/",
+      "image": "https://ambiencehomedesign.com/wp-content/uploads/2024/05/project-main-1.jpg"
+    },
+    {
+      "title": "VILLA LA ZAGALETA",
+      "cta": "View Project",
+      "href": "/project/villa-la-zagaleta/",
+      "image": "https://ambiencehomedesign.com/wp-content/uploads/2024/07/featured-la-zagaleta-ambience-home-design.jpg"
+    },
+    {
+      "title": "VILLA IN SOTOGRANDE",
+      "cta": "View Project",
+      "href": "/?post_type=project&p=61017",
+      "image": "https://ambiencehomedesign.com/wp-content/uploads/2024/07/landingSotogrande-Interior-Design.jpg"
+    },
+    {
+      "title": "NEW VILLA BENAHAVIS",
+      "cta": "View Project",
+      "href": "/project/new-villa-in-benahavis/",
+      "image": "https://ambiencehomedesign.com/wp-content/uploads/2023/03/home-slider-5.jpg"
+    },
+    {
+      "title": "NEW VILLA LA ZAGALETA",
+      "cta": "View Project",
+      "href": "/project/home-la-zagaleta-benahavis-spain-2-2/",
+      "image": "https://ambiencehomedesign.com/wp-content/uploads/2023/03/home-slider-3-1.jpg"
+    },
+    {
+      "title": "VILLA LA ZAGALETA",
+      "cta": "View Project",
+      "href": "/project/villa-la-zagaleta/",
+      "image": "https://ambiencehomedesign.com/wp-content/uploads/2019/11/LOUNGE-CAM3_.jpg"
+    }
+  ],
+  "homepageFeaturedProjects": [
+    {
+      "title": "LA PERLA BLANCA",
+      "subtitle": "Architectural features & bespoke furniture",
+      "href": "/project/la-perla-blanca-new-golden-mile-spain/",
+      "image": "https://ambiencehomedesign.com/wp-content/uploads/2021/05/perla-blanca-without-date.jpg"
+    },
+    {
+      "title": "ICON BEACH VILLA",
+      "subtitle": "Marbella, Spain",
+      "href": "/project/icon-beach-villa-marbella-spain/",
+      "image": "https://ambiencehomedesign.com/wp-content/uploads/2022/09/ambience-home-design-beach-villa-marbella-1900.jpg"
+    },
+    {
+      "title": "EMARE",
+      "subtitle": "Beach front on the new golden mile",
+      "href": "/project/emare/",
+      "image": "https://ambiencehomedesign.com/wp-content/uploads/2020/03/portada-slide.jpg"
+    },
+    {
+      "title": "VILLA LA ZAGALETA",
+      "subtitle": "Contemporary interior design",
+      "href": "/project/home-la-zagaleta-benahavis-spain-2/",
+      "image": "https://ambiencehomedesign.com/wp-content/uploads/2018/01/la-zagaleta-ambience-home-design-01-2.jpg"
+    }
+  ],
+  "logos": [
+    {
+      "alt": "Ambience Home Design - Interior Design in Marbella",
+      "src": "https://ambiencehomedesign.com/wp-content/uploads/2023/11/logo-ambience-650.png"
+    },
+    {
+      "alt": "Interior Design in Marbella (dark)",
+      "src": "https://ambiencehomedesign.com/wp-content/uploads/2023/11/logo-ambience-650bl.png"
+    }
+  ],
+  "contact": {
+    "phone": "+34 952 858 699",
+    "showrooms": [
+      {
+        "name": "New Showroom Marbella",
+        "address": "Blvd. Principe Alfonso de Hohenlohe, C.C. La Poveda, Local 2/3, 29602 Marbella, Málaga, Spain",
+        "ext": "1"
+      },
+      {
+        "name": "Showroom Marbella",
+        "address": "Blvd. Principe Alfonso de Hohenlohe, C.C. La Poveda, Local 6, 29602 Marbella, Málaga, Spain",
+        "ext": "1"
+      }
+    ],
+    "warehouse": {
+      "name": "Warehouse Marbella",
+      "address": "Pol. Ind. La Ermita, Calle Aluminio 21, 29603 Marbella, Málaga, Spain",
+      "hours": "Delivery Monday–Friday 9:30–17:00",
+      "ext": "2"
+    }
+  }
+}
