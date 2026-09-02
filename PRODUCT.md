@@ -25,10 +25,11 @@ Elegant, luxurious, modern, smooth, calming. Voice is precise and composed: mate
 ## Design Principles
 
 1. **Photography leads.** The rooms sell the brand; UI frames them, never competes.
-2. **Quiet confidence.** Restraint in chrome, motion, and copy; one clear action per view.
-3. **Material calm.** Soft contrast, generous air, and smooth transitions that match the interiors.
+2. **Quiet confidence.** Restraint in chrome and copy; one clear action per view: request a meeting.
+3. **Material calm.** Soft contrast, generous air, and smooth ease-in/out motion that matches the interiors.
 4. **Project storytelling.** Linked titles and images stay tied; every featured space has a clear path to its project.
-5. **Showroom invitation.** Contact and appointment paths stay easy to find without shouting.
+5. **Showroom invitation.** Contact and meeting paths stay easy to find without shouting.
+6. **No template noise.** No line separators, no small all-caps eyebrow titles, no springy motion.
 
 ## Accessibility & Inclusion
 

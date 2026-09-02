@@ -64,10 +64,9 @@ export const site = {
     instagram:
       siteMap.social.find((item) => item.label === "Instagram")?.href ?? "",
   },
-  logoLight:
-    "https://ambiencehomedesign.com/wp-content/uploads/2023/11/logo-ambience-650.png",
-  logoDark:
-    "https://ambiencehomedesign.com/wp-content/uploads/2023/11/logo-ambience-650bl.png",
+  logo: "/brand/ambience-logo-dark.png",
+  logoLight: "/brand/ambience-logo-light.png",
+  logoDark: "/brand/ambience-logo-dark.png",
 };
 
 export const nav: NavItem[] = [
@@ -77,6 +76,7 @@ export const nav: NavItem[] = [
   { label: "Team", href: "/team" },
   { label: "Testimonials", href: "/testimonials" },
   { label: "Outlet", href: "/outlet" },
+  { label: "Downloads", href: "/downloads" },
   { label: "Press", href: "/press" },
   { label: "Careers", href: "/careers" },
   { label: "Contact", href: "/contact" },

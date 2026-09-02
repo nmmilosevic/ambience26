@@ -1,69 +1,183 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { MediaImage } from "@/components/MediaImage";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PageShell } from "@/components/PageShell";
+import { ImageReveal } from "@/components/ImageReveal";
+import { TextReveal } from "@/components/TextReveal";
+import { Reveal } from "@/components/Reveal";
+import { HeroVeil } from "@/components/HeroVeil";
 import { ButtonLink } from "@/components/ButtonLink";
 import { getProject, projects } from "@/content/projects";
+import { getProjectStory } from "@/content/project-stories";
+import { getProjectGallery } from "@/lib/galleries";
+import { STAGGER } from "@/lib/motion";
 
-type Props = { params: Promise<{ slug: string }> };
+type PageProps = {
+  params: Promise<{ slug: string }>;
+};
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const project = getProject(slug);
   if (!project) return { title: "Project" };
-  return {
-    title: project.displayTitle,
-    description: `${project.displayTitle} — interior design project by Ambience Home Design.`,
-  };
+  return { title: project.displayTitle };
 }
 
-export default async function ProjectDetailPage({ params }: Props) {
+export default async function ProjectDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const project = getProject(slug);
   if (!project) notFound();
 
+  const gallery = getProjectGallery(slug);
+  const images = (gallery.length > 0 ? gallery : [project.image]).filter(
+    (src) => Boolean(src?.trim()),
+  );
+  const story = getProjectStory(slug);
+  // First gallery plate is the next LCP after the hero; preload while the
+  // title still holds attention so ImageReveal is not waiting on a cold fetch.
+  const leadGallery = images[0];
+  const related = projects
+    .filter((p) => p.category === project.category && p.slug !== project.slug)
+    .slice(0, 3);
+
   return (
-    <>
-      <section className="relative min-h-[70svh] bg-ink text-bg">
-        <Image
+    <PageShell overMedia>
+      {leadGallery && leadGallery !== project.image ? (
+        <link rel="preload" as="image" href={leadGallery} fetchPriority="high" />
+      ) : null}
+      <section className="relative min-h-[75dvh] overflow-hidden bg-void">
+        <MediaImage
           src={project.image}
           alt={project.displayTitle}
           fill
           priority
+          decoding="sync"
           sizes="100vw"
-          className="object-cover opacity-90"
+          className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/25 to-ink/20" />
-        <div className="relative z-10 container-pad flex min-h-[70svh] flex-col justify-end pb-16 pt-36">
-          <p className="text-sm uppercase tracking-[0.2em] text-bg/75">
-            {project.category}
-          </p>
-          <h1 className="mt-3 max-w-4xl font-display text-[clamp(2.25rem,5vw,4.25rem)] tracking-[-0.02em]">
+        <HeroVeil className="z-[1]" />
+        <div className="relative z-10 mx-auto flex min-h-[75dvh] max-w-content flex-col justify-end px-5 pb-16 pt-28 md:px-8">
+          <Reveal variant="text">
+            <p className="mb-3 text-sm capitalize text-on-void/80">
+              {story?.location ? `${project.category} · ${story.location}` : project.category}
+            </p>
+          </Reveal>
+          <TextReveal as="h1" delay={STAGGER.body} className="max-w-4xl font-display text-display text-on-void">
             {project.displayTitle}
-          </h1>
+          </TextReveal>
         </div>
       </section>
 
-      <section className="section-y">
-        <div className="container-pad grid gap-10 lg:grid-cols-[1fr_0.8fr]">
-          <div>
-            <p className="max-w-prose text-lg leading-relaxed text-muted">
-              A {project.category} project by Ambience Home Design. Explore the atmosphere,
-              materials and composition of this space. For room-by-room details or a private
-              walkthrough, request an appointment with the studio.
-            </p>
+      {story && story.body.length > 0 ? (
+        <section className="bg-bg pt-16 md:pt-24">
+          <div className="mx-auto max-w-content px-5 md:px-8">
+            <div className="max-w-measure space-y-5">
+              {story.body.map((para, i) => (
+                <Reveal
+                  key={para.slice(0, 48)}
+                  variant="text"
+                  delay={STAGGER.body + i * 0.06}
+                >
+                  <p className="leading-relaxed text-muted">{para}</p>
+                </Reveal>
+              ))}
+            </div>
           </div>
-          <div className="flex flex-col gap-4 lg:items-end">
-            <ButtonLink href="/appointment">Request an appointment</ButtonLink>
-            <ButtonLink href={`/projects/${project.category}`} variant="outline">
-              More {project.category} projects
-            </ButtonLink>
+        </section>
+      ) : null}
+
+      <section className={`bg-bg ${story && story.body.length > 0 ? "py-16 md:py-24" : "py-16 md:py-24"}`}>
+        <div className="mx-auto max-w-content px-5 md:px-8">
+          {/*
+            True 2-column photography grid (not a wrapping flex).
+            Tailwind grid-cols-2 = repeat(2, minmax(0, 1fr)) so tracks stay
+            equal and never overflow. Shared 16/10 crop keeps every row one
+            height. A leftover odd plate spans both columns as a wide closer.
+          */}
+          <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2 md:gap-8">
+            {images.map((src, i) => {
+              // First three: eager so wipe has pixels ready as the user scrolls
+              // from the hero. Rest stay lazy to avoid saturating the connection.
+              const isLead = i === 0;
+              const isWarm = i < 3;
+              const isLastOdd =
+                images.length % 2 === 1 && i === images.length - 1;
+
+              return (
+                <ImageReveal
+                  key={src + i}
+                  delay={Math.min(i * 0.04, 0.2)}
+                  className={
+                    isLastOdd
+                      ? "relative min-w-0 overflow-hidden aspect-[16/10] md:col-span-2 md:aspect-[21/9]"
+                      : "relative min-w-0 overflow-hidden aspect-[16/10]"
+                  }
+                >
+                  <MediaImage
+                    src={src}
+                    alt={`${project.displayTitle} - view ${i + 1}`}
+                    fill
+                    priority={isLead}
+                    loading={isWarm ? "eager" : "lazy"}
+                    fetchPriority={isLead ? "high" : isWarm ? "low" : "auto"}
+                    decoding={isLead ? "sync" : "async"}
+                    sizes={
+                      isLastOdd
+                        ? "(max-width: 768px) 100vw, min(100vw, 76rem)"
+                        : "(max-width: 768px) 100vw, min(50vw, 38rem)"
+                    }
+                    className="object-cover"
+                  />
+                </ImageReveal>
+              );
+            })}
           </div>
         </div>
       </section>
-    </>
+
+      {related.length > 0 && (
+        <section className="bg-surface py-20 md:py-28">
+          <div className="mx-auto max-w-content px-5 md:px-8">
+            <TextReveal as="h2" className="font-display text-2xl tracking-tight md:text-3xl">
+              More in {project.category}
+            </TextReveal>
+            <ul className="mt-10 grid gap-8 sm:grid-cols-3">
+              {related.map((item, i) => (
+                <li key={item.slug}>
+                  <Link href={item.href} className="group block">
+                    <ImageReveal delay={i * STAGGER.item}>
+                      <div className="relative aspect-[16/10] overflow-hidden">
+                        <MediaImage
+                          src={item.image}
+                          alt={item.displayTitle}
+                          fill
+                          sizes="33vw"
+                          className="object-cover transition duration-slow group-hover:scale-[1.03]"
+                        />
+                      </div>
+                    </ImageReveal>
+                    <TextReveal
+                      as="p"
+                      delay={i * STAGGER.item + STAGGER.body}
+                      className="mt-4 text-lg tracking-tight"
+                    >
+                      {item.displayTitle}
+                    </TextReveal>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-12">
+              <ButtonLink href="/appointment">Request a meeting</ButtonLink>
+            </div>
+          </div>
+        </section>
+      )}
+    </PageShell>
   );
 }

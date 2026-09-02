@@ -36,5 +36,13 @@ export const pressContent = {
   video: {
     title: "Interview with the CEO for Bloomberg Television",
     description: "Take a look at Ambience behind the scenes.",
+    vimeoId: "244640632",
+    poster: "/media/captura-video-entrevista-c85357df.jpg",
+  },
+  showroom: {
+    title: "Showroom films",
+    description: "A quiet walk through the Golden Mile showroom atmosphere.",
+    poster: "/media/captura-video-15-amiversario-c408a5e5.jpg",
+    href: "/projects/new-showroom-golden-mile-marbella",
   },
 };

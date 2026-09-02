@@ -1,93 +1,110 @@
 import Link from "next/link";
-import { locations, nav, site } from "@/content/site";
+import { BrandLogo } from "./BrandLogo";
+import { ButtonLink } from "./ButtonLink";
+import { legalLinks, locations, site, socialLinks } from "@/content/site";
+
+const studioLinks = [
+  { label: "Projects", href: "/projects" },
+  { label: "Services", href: "/services" },
+  { label: "About", href: "/about" },
+  { label: "Team", href: "/team" },
+];
+
+const moreLinks = [
+  { label: "Testimonials", href: "/testimonials" },
+  { label: "Outlet", href: "/outlet" },
+  { label: "Downloads", href: "/downloads" },
+  { label: "Press", href: "/press" },
+  { label: "Careers", href: "/careers" },
+];
 
 export function SiteFooter() {
+  const showroom = locations[0];
+
   return (
-    <footer className="border-t border-line bg-ink text-bg">
-      <div className="container-pad section-y grid gap-12 lg:grid-cols-[1.2fr_1fr_1fr]">
-        <div>
-          <p className="font-display text-3xl tracking-[0.08em]">
-            {site.name.toUpperCase()}
-          </p>
-          <p className="mt-1 text-[0.7rem] uppercase tracking-[0.28em] text-bg/70">
-            Home Design
-          </p>
-          <p className="mt-6 max-w-sm text-sm leading-relaxed text-bg/75">
-            {site.description}
-          </p>
-          <p className="mt-6 text-sm">
-            <a className="hover:opacity-80 focus-ring" href={`tel:${site.phone.replace(/\s/g, "")}`}>
-              {site.phone}
-            </a>
-          </p>
+    <footer className="bg-void text-on-void">
+      <div className="mx-auto max-w-content px-5 py-20 md:px-8 md:py-28">
+        <div className="grid gap-14 lg:grid-cols-12 lg:gap-10">
+          <div className="lg:col-span-5">
+            <BrandLogo onDark />
+            <p className="mt-8 max-w-md text-base leading-relaxed text-on-void/70">
+              Interior architecture and turnkey homes from Marbella to international
+              commissions.
+            </p>
+            <div className="mt-10">
+              <ButtonLink href="/appointment" variant="ghost-dark">
+                Request a meeting
+              </ButtonLink>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 lg:col-span-7 lg:grid-cols-3">
+            <div>
+              <p className="mb-4 text-sm text-on-void/50">Studio</p>
+              <ul className="space-y-3">
+                {studioLinks.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className="hover:opacity-70">
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="mb-4 text-sm text-on-void/50">More</p>
+              <ul className="space-y-3">
+                {moreLinks.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className="hover:opacity-70">
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="col-span-2 sm:col-span-1">
+              <p className="mb-4 text-sm text-on-void/50">Visit</p>
+              {showroom && (
+                <address className="not-italic text-sm leading-relaxed text-on-void/80">
+                  <span className="block text-on-void">{showroom.name}</span>
+                  <span className="mt-2 block">{showroom.address}</span>
+                  <a
+                    href={`tel:${site.phone.replace(/\s/g, "")}`}
+                    className="mt-3 block hover:opacity-70"
+                  >
+                    {site.phone}
+                  </a>
+                </address>
+              )}
+              <div className="mt-6 flex gap-5">
+                {socialLinks.map((s) => (
+                  <a
+                    key={s.href}
+                    href={s.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm hover:opacity-70"
+                  >
+                    {s.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div>
-          <p className="text-sm text-bg/60">Explore</p>
-          <ul className="mt-4 space-y-2">
-            {nav.map((item) => (
+        <div className="mt-16 flex flex-col gap-4 text-sm text-on-void/45 md:mt-24 md:flex-row md:items-center md:justify-between">
+          <p>© {new Date().getFullYear()} {site.fullName}</p>
+          <ul className="flex flex-wrap gap-x-6 gap-y-2">
+            {legalLinks.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="text-sm hover:opacity-80 focus-ring">
+                <Link href={item.href} className="hover:text-on-void">
                   {item.label}
                 </Link>
               </li>
             ))}
-            <li>
-              <Link href="/appointment" className="text-sm hover:opacity-80 focus-ring">
-                Request an appointment
-              </Link>
-            </li>
           </ul>
-        </div>
-
-        <div>
-          <p className="text-sm text-bg/60">Showrooms</p>
-          <ul className="mt-4 space-y-5">
-            {locations.slice(0, 2).map((loc) => (
-              <li key={loc.name} className="text-sm leading-relaxed text-bg/80">
-                <span className="block text-bg">{loc.name}</span>
-                {loc.address}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-6 flex gap-5 text-sm">
-            <a
-              href={site.social.instagram}
-              target="_blank"
-              rel="noreferrer"
-              className="hover:opacity-80 focus-ring"
-            >
-              Instagram
-            </a>
-            <a
-              href={site.social.facebook}
-              target="_blank"
-              rel="noreferrer"
-              className="hover:opacity-80 focus-ring"
-            >
-              Facebook
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div className="border-t border-bg/15">
-        <div className="container-pad flex flex-col gap-3 py-6 text-xs text-bg/55 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} {site.fullName}</p>
-          <div className="flex flex-wrap gap-4">
-            <Link href="/legal/notice" className="hover:text-bg focus-ring">
-              Legal notice
-            </Link>
-            <Link href="/legal/cookies" className="hover:text-bg focus-ring">
-              Cookies
-            </Link>
-            <Link href="/legal/privacy" className="hover:text-bg focus-ring">
-              Privacy
-            </Link>
-            <Link href="/legal/terms" className="hover:text-bg focus-ring">
-              Terms
-            </Link>
-          </div>
         </div>
       </div>
     </footer>

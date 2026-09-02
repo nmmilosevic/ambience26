@@ -1,33 +1,68 @@
 import type { Metadata } from "next";
+import { MediaImage } from "@/components/MediaImage";
+import Link from "next/link";
+import { PageShell } from "@/components/PageShell";
 import { PageHero } from "@/components/PageHero";
+import { Reveal } from "@/components/Reveal";
+import { TextReveal } from "@/components/TextReveal";
+import { ImageReveal } from "@/components/ImageReveal";
 import { testimonials } from "@/content/testimonials";
+import { STAGGER } from "@/lib/motion";
 
-export const metadata: Metadata = {
-  title: "Testimonials",
-  description: "Client testimonials for Ambience Home Design luxury interior projects.",
-};
+export const metadata: Metadata = { title: "Testimonials" };
 
 export default function TestimonialsPage() {
   return (
-    <>
+    <PageShell>
       <PageHero
-        title="Testimonials"
-        description="Words from homeowners, developers and partners who trusted Ambience with their spaces."
+        title="Client voices"
+        lead="What homeowners and partners say about working with Ambience."
       />
-      <section className="pb-24">
-        <div className="container-pad grid gap-10 md:grid-cols-2">
-          {testimonials.map((t) => (
-            <blockquote key={t.name + (t.place || "")} className="border-t border-line pt-6">
-              <p className="text-base leading-relaxed">&ldquo;{t.quote}&rdquo;</p>
-              <footer className="mt-6 text-sm text-muted">
-                <cite className="not-italic text-ink">{t.name}</cite>
-                {t.role ? <span className="block mt-1">{t.role}</span> : null}
-                {t.place ? <span className="block mt-1">{t.place}</span> : null}
-              </footer>
-            </blockquote>
+
+      <section className="bg-bg pb-24 md:pb-32">
+        <div className="mx-auto max-w-content space-y-16 px-5 md:px-8">
+          {testimonials.map((item, i) => (
+            <article
+              key={`${item.name}-${i}`}
+              className="grid gap-8 border-b border-line pb-16 last:border-0 md:grid-cols-12"
+            >
+              {item.image && (
+                <Link
+                  href={item.href ?? "#"}
+                  className="md:col-span-4"
+                >
+                  <ImageReveal className="relative aspect-[4/5] overflow-hidden">
+                    <MediaImage
+                      src={item.image}
+                      alt=""
+                      fill
+                      sizes="33vw"
+                      className="object-cover"
+                    />
+                  </ImageReveal>
+                </Link>
+              )}
+              <blockquote
+                className={item.image ? "md:col-span-8" : "md:col-span-10"}
+              >
+                <TextReveal
+                  as="p"
+                  className="text-xl leading-snug tracking-tight md:text-2xl"
+                >
+                  “{item.quote}”
+                </TextReveal>
+                <Reveal variant="text" delay={STAGGER.body} className="mt-6">
+                  <footer className="text-sm text-muted">
+                    <span className="text-ink">{item.name}</span>
+                    {item.role && <span> - {item.role}</span>}
+                    {item.place && <span> - {item.place}</span>}
+                  </footer>
+                </Reveal>
+              </blockquote>
+            </article>
           ))}
         </div>
       </section>
-    </>
+    </PageShell>
   );
 }

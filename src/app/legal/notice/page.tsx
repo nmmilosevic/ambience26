@@ -1,40 +1,25 @@
-import type { Metadata } from "next";
-import { PageHero } from "@/components/PageHero";
+import { LegalPage, legalMetadata } from "@/components/LegalPage";
 
-type LegalProps = {
-  title: string;
-  description: string;
-  body: string[];
-};
-
-function LegalPage({ title, description, body }: LegalProps) {
-  return (
-    <>
-      <PageHero title={title} description={description} />
-      <section className="pb-24">
-        <div className="container-pad max-w-3xl space-y-5 text-base leading-relaxed text-muted">
-          {body.map((p) => (
-            <p key={p.slice(0, 40)}>{p}</p>
-          ))}
-        </div>
-      </section>
-    </>
-  );
-}
-
-export const metadata: Metadata = {
-  title: "Legal Notice",
-};
+export const metadata = legalMetadata("Legal Notice");
 
 export default function LegalNoticePage() {
   return (
     <LegalPage
-      title="Legal notice"
-      description="Company information for Ambience Home Design."
-      body={[
-        "This website is operated by Ambience Home Design, based in Marbella, Spain.",
-        "For formal legal notices and company registration details, contact the studio at the Golden Mile showroom addresses listed on the Contact page, or email info@ambiencehomedesign.com.",
-        "Content, photography and project materials on this site are protected. Reproduction without permission is not allowed.",
+      title="Legal Notice"
+      summary="Information about the owner and operator of this website."
+      sections={[
+        {
+          heading: "Owner",
+          body: "Ambience Home Design operates this website to present the studio's interior architecture work and to receive appointment and contact enquiries.",
+        },
+        {
+          heading: "Contact",
+          body: "You can reach the studio by phone at +34 952 858 699 or by email at info@ambiencehomedesign.com.",
+        },
+        {
+          heading: "Content",
+          body: "Project photography and copy on this site describe real commissions. Images and text remain the property of Ambience Home Design unless otherwise noted.",
+        },
       ]}
     />
   );

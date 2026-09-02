@@ -1,82 +1,109 @@
 import type { Metadata } from "next";
+import { MediaImage } from "@/components/MediaImage";
 import Link from "next/link";
-import { PageHero } from "@/components/PageHero";
-import { ProjectTile } from "@/components/ProjectTile";
+import { PageShell } from "@/components/PageShell";
+import { Reveal } from "@/components/Reveal";
+import { TextReveal } from "@/components/TextReveal";
+import { ImageReveal } from "@/components/ImageReveal";
 import { projectsByCategory } from "@/content/projects";
-import type { ProjectCategory } from "@/content/site";
+import { STAGGER } from "@/lib/motion";
 
 export const metadata: Metadata = {
   title: "Projects",
-  description:
-    "Residential, commercial and refurbishment interior architecture projects by Ambience Home Design.",
 };
 
-const categories: { key: ProjectCategory; label: string; href: string; text: string }[] = [
+const categories = [
   {
-    key: "residential",
-    label: "Residential",
+    id: "residential" as const,
+    title: "Residential",
+    lead: "Villas, apartments, and showhomes across Marbella and beyond.",
     href: "/projects/residential",
-    text: "Villas, apartments and showhomes across Marbella and abroad.",
   },
   {
-    key: "commercial",
-    label: "Commercial",
+    id: "commercial" as const,
+    title: "Commercial",
+    lead: "Hospitality and retail spaces shaped around brand and experience.",
     href: "/projects/commercial",
-    text: "Showrooms, offices, hospitality and brand environments.",
   },
   {
-    key: "refurbishment",
-    label: "Refurbishment",
+    id: "refurbishment" as const,
+    title: "Refurbishment",
+    lead: "Full renovations and turnkey transformations.",
     href: "/projects/refurbishment",
-    text: "Kitchens, bathrooms, wardrobes and architectural detailing.",
   },
 ];
 
 export default function ProjectsPage() {
   return (
-    <>
-      <PageHero
-        title="Projects"
-        description="A portfolio of luxury interiors where photography leads and every title stays linked to its space."
-      />
-      <section className="pb-20">
-        <div className="container-pad grid gap-8 md:grid-cols-3">
-          {categories.map((cat) => {
-            const sample = projectsByCategory(cat.key)[0];
+    <PageShell>
+      <section className="bg-bg pt-28 md:pt-32">
+        <div className="mx-auto max-w-content px-5 pb-16 md:px-8 md:pb-20">
+          <TextReveal as="h1" className="font-display text-display max-w-3xl">
+            Projects
+          </TextReveal>
+          <Reveal variant="text" delay={STAGGER.body} className="mt-6 max-w-measure">
+            <p className="text-lead text-muted">
+              A selection of interior architecture commissions, from Costa del Sol villas to
+              international residences.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="bg-bg pb-24 md:pb-32">
+        <div className="mx-auto max-w-content space-y-6 px-5 md:px-8">
+          {categories.map((cat, i) => {
+            const sample = projectsByCategory(cat.id)[0];
             return (
-              <Link key={cat.key} href={cat.href} className="group block focus-ring">
-                {sample ? (
-                  <div className="relative mb-5 aspect-[4/5] overflow-hidden bg-surface">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+              <Link
+                key={cat.id}
+                href={cat.href}
+                className="group grid overflow-hidden md:grid-cols-12"
+              >
+                <ImageReveal
+                  delay={i * STAGGER.item}
+                  className="relative aspect-[16/10] md:col-span-7 md:aspect-auto md:min-h-[320px]"
+                >
+                  {sample?.image ? (
+                    <MediaImage
                       src={sample.image}
                       alt=""
-                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 60vw"
+                      className="object-cover transition duration-slow ease-out group-hover:scale-[1.02]"
                     />
-                  </div>
-                ) : null}
-                <h2 className="font-display text-2xl tracking-[-0.02em]">{cat.label}</h2>
-                <p className="mt-2 text-sm text-muted">{cat.text}</p>
+                  ) : null}
+                </ImageReveal>
+                <div className="flex flex-col justify-center bg-surface px-6 py-10 md:col-span-5 md:px-10">
+                  <TextReveal
+                    as="h2"
+                    delay={i * STAGGER.item + STAGGER.body}
+                    className="font-display text-3xl tracking-tight md:text-4xl"
+                  >
+                    {cat.title}
+                  </TextReveal>
+                  <Reveal
+                    variant="text"
+                    delay={i * STAGGER.item + STAGGER.body2}
+                    className="mt-4"
+                  >
+                    <p className="text-muted">{cat.lead}</p>
+                  </Reveal>
+                  <Reveal
+                    variant="text"
+                    delay={i * STAGGER.item + STAGGER.body3}
+                    className="mt-8"
+                  >
+                    <span className="text-sm tracking-wide group-hover:opacity-70">
+                      Browse {cat.title.toLowerCase()}
+                    </span>
+                  </Reveal>
+                </div>
               </Link>
             );
           })}
         </div>
       </section>
-      <section className="border-t border-line section-y bg-surface">
-        <div className="container-pad">
-          <h2 className="font-display text-3xl tracking-[-0.02em]">Recent residential</h2>
-          <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {projectsByCategory("residential").slice(0, 6).map((p) => (
-              <ProjectTile
-                key={p.slug}
-                href={p.href}
-                image={p.image}
-                title={p.displayTitle}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-    </>
+    </PageShell>
   );
 }

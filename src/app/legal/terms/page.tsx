@@ -1,30 +1,26 @@
-import type { Metadata } from "next";
-import { PageHero } from "@/components/PageHero";
+import { LegalPage, legalMetadata } from "@/components/LegalPage";
 
-export const metadata: Metadata = {
-  title: "Terms & Conditions",
-};
+export const metadata = legalMetadata("Terms & Conditions");
 
 export default function TermsPage() {
   return (
-    <>
-      <PageHero
-        title="Terms & conditions"
-        description="General terms for using the Ambience Home Design website."
-      />
-      <section className="pb-24">
-        <div className="container-pad max-w-3xl space-y-5 text-base leading-relaxed text-muted">
-          <p>
-            By using this website you agree to browse project information, showroom details and
-            product listings for informational purposes. Project availability, product pricing and
-            stock may change without notice.
-          </p>
-          <p>
-            Design services are subject to separate client agreements. Nothing on this website
-            constitutes a binding offer until confirmed in writing by Ambience Home Design.
-          </p>
-        </div>
-      </section>
-    </>
+    <LegalPage
+      title="Terms & Conditions"
+      summary="General terms for use of the Ambience Home Design website."
+      sections={[
+        {
+          heading: "Use of the site",
+          body: "This website is provided for information about Ambience Home Design and to facilitate contact. You agree not to misuse the site or attempt to disrupt its operation.",
+        },
+        {
+          heading: "Intellectual property",
+          body: "All branding, photography, and written content remain the property of Ambience Home Design. Reproduction without permission is not allowed.",
+        },
+        {
+          heading: "Liability",
+          body: "While we aim for accuracy, project details and availability may change. Formal design engagements are governed by separate agreements.",
+        },
+      ]}
+    />
   );
 }

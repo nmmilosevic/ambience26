@@ -1,16 +1,12 @@
-import type { Metadata } from "next";
-import { CategoryListing } from "@/components/CategoryListing";
+import { CategoryListingPage, categoryMetadata } from "@/components/CategoryListingPage";
 
-export const metadata: Metadata = {
-  title: "Commercial Projects",
-  description: "Commercial and hospitality interior architecture by Ambience Home Design.",
-};
+export const metadata = categoryMetadata("Commercial Projects");
 
 export default function CommercialProjectsPage() {
   return (
-    <CategoryListing
+    <CategoryListingPage
       title="Commercial"
-      description="Showrooms, offices and hospitality spaces composed for brand clarity."
+      lead="Spaces for hospitality and retail where brand and atmosphere meet."
       category="commercial"
     />
   );

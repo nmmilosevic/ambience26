@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local full media dump (~1GB). Do not `git add public/media` wholesale.
+# Commit only referenced assets with: git add -f public/media/<path>
+/public/media/
+
+# Agent / local scratch (not part of the site)
+/.cursor/
+/.claude/
+/.impeccable/
+/tmp/
+.tmp-*

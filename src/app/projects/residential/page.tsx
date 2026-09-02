@@ -1,16 +1,12 @@
-import type { Metadata } from "next";
-import { CategoryListing } from "@/components/CategoryListing";
+import { CategoryListingPage, categoryMetadata } from "@/components/CategoryListingPage";
 
-export const metadata: Metadata = {
-  title: "Residential Projects",
-  description: "Luxury residential interior design and villa projects by Ambience Home Design.",
-};
+export const metadata = categoryMetadata("Residential Projects");
 
 export default function ResidentialProjectsPage() {
   return (
-    <CategoryListing
+    <CategoryListingPage
       title="Residential"
-      description="Villas, apartments and showhomes designed for lasting everyday luxury."
+      lead="Villas, penthouses, and private homes designed as lasting places to live."
       category="residential"
     />
   );

@@ -1,49 +1,73 @@
-import Image from "next/image";
 import Link from "next/link";
+import { ImageReveal } from "./ImageReveal";
+import { Reveal } from "./Reveal";
+import { TextReveal } from "./TextReveal";
+import { MediaImage } from "./MediaImage";
+import { STAGGER } from "@/lib/motion";
 
-type Props = {
+type ProjectTileProps = {
   href: string;
-  image: string;
   title: string;
   subtitle?: string;
+  image: string;
   priority?: boolean;
-  aspect?: "portrait" | "landscape" | "wide";
+  aspect?: "video" | "square" | "portrait" | "wide";
+  className?: string;
+  delay?: number;
 };
 
 const aspects = {
+  video: "aspect-[16/10]",
+  square: "aspect-square",
   portrait: "aspect-[4/5]",
-  landscape: "aspect-[5/4]",
-  wide: "aspect-[16/10]",
+  wide: "aspect-[21/9]",
 };
 
 export function ProjectTile({
   href,
-  image,
   title,
   subtitle,
-  priority,
-  aspect = "portrait",
-}: Props) {
+  image,
+  priority = false,
+  aspect = "video",
+  className = "",
+  delay = 0,
+}: ProjectTileProps) {
+  const hasImage = Boolean(image?.trim());
+
   return (
-    <Link href={href} className="group block focus-ring">
-      <div className={`relative overflow-hidden bg-surface ${aspects[aspect]}`}>
-        <Image
-          src={image}
-          alt={title}
-          fill
-          priority={priority}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-        />
-      </div>
-      <div className="mt-4">
-        <h3 className="font-display text-xl tracking-[-0.02em] transition-opacity group-hover:opacity-70 sm:text-2xl">
-          {title}
-        </h3>
-        {subtitle ? (
-          <p className="mt-1 text-sm text-muted">{subtitle}</p>
+    <div className={className}>
+      <Link href={href} className="group block">
+        {hasImage ? (
+          <ImageReveal
+            delay={delay}
+            className={`relative overflow-hidden ${aspects[aspect]}`}
+          >
+            <MediaImage
+              src={image}
+              alt={title}
+              fill
+              priority={priority}
+              // Eager: ImageReveal wipe needs pixels; lazy + clip races empty tiles
+              loading={priority ? undefined : "eager"}
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover transition duration-slow ease-out group-hover:scale-[1.03]"
+            />
+          </ImageReveal>
         ) : null}
-      </div>
-    </Link>
+        <TextReveal
+          as="h3"
+          delay={delay + STAGGER.body}
+          className="mt-5 font-display text-h3 tracking-tight"
+        >
+          {title}
+        </TextReveal>
+        {subtitle && (
+          <Reveal variant="text" delay={delay + STAGGER.body2}>
+            <p className="mt-1 text-sm text-muted md:text-base">{subtitle}</p>
+          </Reveal>
+        )}
+      </Link>
+    </div>
   );
 }

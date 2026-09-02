@@ -1,30 +1,26 @@
-import type { Metadata } from "next";
-import { PageHero } from "@/components/PageHero";
+import { LegalPage, legalMetadata } from "@/components/LegalPage";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy",
-};
+export const metadata = legalMetadata("Privacy Policy");
 
-export default function PrivacyPage() {
+export default function PrivacyPolicyPage() {
   return (
-    <>
-      <PageHero
-        title="Privacy policy"
-        description="How Ambience Home Design handles personal data."
-      />
-      <section className="pb-24">
-        <div className="container-pad max-w-3xl space-y-5 text-base leading-relaxed text-muted">
-          <p>
-            When you request an appointment or contact the studio, we collect the information you
-            submit (such as name, email, phone and message) to respond to your inquiry.
-          </p>
-          <p>
-            We do not sell personal data. Data is retained only as long as needed for the
-            conversation and legitimate business records. For access, correction or deletion
-            requests, email info@ambiencehomedesign.com.
-          </p>
-        </div>
-      </section>
-    </>
+    <LegalPage
+      title="Privacy Policy"
+      summary="How Ambience Home Design handles personal data shared through enquiries."
+      sections={[
+        {
+          heading: "Data we collect",
+          body: "When you request a meeting or contact the studio, we may receive your name, email, phone number, and project details that you choose to share.",
+        },
+        {
+          heading: "How we use it",
+          body: "We use this information to respond to your enquiry, arrange appointments, and deliver the services you request. We do not sell personal data.",
+        },
+        {
+          heading: "Your rights",
+          body: "You may ask to access, correct, or delete personal data held about you by contacting info@ambiencehomedesign.com.",
+        },
+      ]}
+    />
   );
 }

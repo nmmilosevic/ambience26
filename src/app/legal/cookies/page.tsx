@@ -1,30 +1,26 @@
-import type { Metadata } from "next";
-import { PageHero } from "@/components/PageHero";
+import { LegalPage, legalMetadata } from "@/components/LegalPage";
 
-export const metadata: Metadata = {
-  title: "Cookies Policy",
-};
+export const metadata = legalMetadata("Cookies Policy");
 
-export default function CookiesPage() {
+export default function CookiesPolicyPage() {
   return (
-    <>
-      <PageHero
-        title="Cookies policy"
-        description="How Ambience Home Design uses cookies on this website."
-      />
-      <section className="pb-24">
-        <div className="container-pad max-w-3xl space-y-5 text-base leading-relaxed text-muted">
-          <p>
-            We use cookies to provide a reliable browsing experience. Strictly necessary cookies
-            keep basic preferences working. Optional analytics cookies (such as Google Analytics)
-            help us understand which pages are most useful.
-          </p>
-          <p>
-            You can change cookie preferences in your browser settings at any time. Disabling
-            analytics cookies will not affect core site functionality.
-          </p>
-        </div>
-      </section>
-    </>
+    <LegalPage
+      title="Cookies Policy"
+      summary="How this website may use cookies to improve experience and measure visits."
+      sections={[
+        {
+          heading: "What cookies are",
+          body: "Cookies are small text files stored on your device. They help the site remember preferences and understand how pages are used.",
+        },
+        {
+          heading: "Strictly necessary",
+          body: "Essential cookies may be required for basic site functions such as saving cookie preferences.",
+        },
+        {
+          heading: "Analytics",
+          body: "Optional analytics cookies (for example Google Analytics) collect anonymous information such as visitor counts and popular pages. You can disable these in your browser settings.",
+        },
+      ]}
+    />
   );
 }

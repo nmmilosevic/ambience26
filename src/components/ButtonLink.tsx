@@ -1,40 +1,48 @@
+"use client";
+
 import Link from "next/link";
-import { type ComponentProps } from "react";
+import { motion, useReducedMotion } from "motion/react";
 
-type Variant = "solid" | "ghost" | "outline" | "light";
+type Variant = "solid" | "outline" | "ghost" | "ghost-dark";
 
-const styles: Record<Variant, string> = {
+const variants: Record<Variant, string> = {
   solid:
-    "bg-ink text-bg hover:bg-primary border border-transparent",
-  ghost:
-    "bg-transparent text-bg border border-bg/50 hover:bg-bg/10",
+    "bg-void text-on-void hover:bg-accent",
   outline:
-    "bg-transparent text-ink border border-ink/20 hover:border-ink/50",
-  light:
-    "bg-bg text-ink hover:bg-surface border border-transparent",
+    "border border-ink text-ink hover:bg-void hover:text-on-void",
+  ghost: "text-ink hover:opacity-70",
+  "ghost-dark":
+    "border border-on-void/70 text-on-void hover:bg-on-void hover:text-void",
 };
 
-type Props = {
+type ButtonLinkProps = {
   href: string;
-  variant?: Variant;
   children: React.ReactNode;
+  variant?: Variant;
   className?: string;
-} & Omit<ComponentProps<"a">, "href" | "className">;
+};
 
 export function ButtonLink({
   href,
-  variant = "solid",
   children,
+  variant = "solid",
   className = "",
-  ...rest
-}: Props) {
+}: ButtonLinkProps) {
+  const reduce = useReducedMotion();
+
   return (
-    <Link
-      href={href}
-      className={`inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm tracking-wide transition-colors duration-300 ease-out focus-ring ${styles[variant]} ${className}`}
-      {...rest}
+    <motion.div
+      whileHover={reduce ? undefined : { y: -1 }}
+      whileTap={reduce ? undefined : { scale: 0.98 }}
+      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+      className="inline-flex"
     >
-      {children}
-    </Link>
+      <Link
+        href={href}
+        className={`inline-flex items-center justify-center whitespace-nowrap rounded-brand px-5 py-2.5 text-sm tracking-wide transition-colors duration-mid ease-out ${variants[variant]} ${className}`}
+      >
+        {children}
+      </Link>
+    </motion.div>
   );
 }

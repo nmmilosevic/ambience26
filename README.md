@@ -5,8 +5,9 @@ Quiet-luxury redesign of [ambiencehomedesign.com](https://ambiencehomedesign.com
 ## Stack
 
 - Next.js 15 (App Router) + TypeScript + Tailwind CSS
-- Fonts: Marcellus (display) + Epilogue (body)
-- Project imagery served from the live Ambience WordPress media CDN
+- Fonts: Tenor Sans (display/titles) + Epilogue (body)
+- Local media in `public/media/` (downloaded from the live WordPress CDN)
+- Design context: `PRODUCT.md`, `DESIGN.md`
 
 ## Develop
 
@@ -17,13 +18,16 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Build
+## Content & media
+
+Extracted site map and project listings live in `content-extract/`. App content modules are in `src/content/`.
 
 ```bash
-npm run build
-npm start
+node scripts/scrape-save.mjs      # refresh project listings from live site
+node scripts/download-media.mjs   # download all media into public/media
+node scripts/rewrite-media-paths.mjs  # point src/content at local /media paths
 ```
 
-## Content
+## Design system
 
-Extracted site map and project listings live in `content-extract/`. App content modules are in `src/content/`. Design context: `PRODUCT.md`, `DESIGN.md`.
+Tokens, motion curves, bans, and component rules live in `DESIGN.md` and are mirrored as CSS variables in `src/app/globals.css`.

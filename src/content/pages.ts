@@ -58,11 +58,26 @@ export const services = {
     },
   ],
   capabilities: [
-    "3D renders & AutoCAD drawings",
-    "Interior architecture",
-    "Area planning",
-    "Budget planning",
-    "Lighting planning",
+    {
+      title: "3D renders & AutoCAD drawings",
+      text: "Precise drawings and photorealistic visuals so every volume, finish and proportion is agreed before works begin.",
+    },
+    {
+      title: "Interior architecture",
+      text: "Spatial composition, joinery and material language that turn a brief into rooms with calm structure and lasting comfort.",
+    },
+    {
+      title: "Area planning",
+      text: "Intelligent layouts that resolve circulation, privacy and light across living, sleeping and service zones.",
+    },
+    {
+      title: "Budget planning",
+      text: "Transparent scoping and phased budgets, so craftsmanship and specification stay aligned with investment.",
+    },
+    {
+      title: "Lighting planning",
+      text: "Layered natural and artificial light schemes that shape atmosphere from morning through evening.",
+    },
   ],
 };
 

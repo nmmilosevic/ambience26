@@ -1,30 +1,29 @@
 import type { Metadata } from "next";
-import { Epilogue, Marcellus } from "next/font/google";
+import { Epilogue, Tenor_Sans } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
-import { site } from "@/content/site";
+import { Providers } from "@/components/Providers";
+import { site, siteMeta } from "@/content/site";
 import "./globals.css";
 
-const display = Marcellus({
-  weight: "400",
+const tenor = Tenor_Sans({
   subsets: ["latin"],
-  variable: "--font-marcellus",
+  weight: "400",
+  variable: "--font-display",
   display: "swap",
 });
 
-const body = Epilogue({
+const epilogue = Epilogue({
   subsets: ["latin"],
-  variable: "--font-epilogue",
+  variable: "--font-body",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Luxury Interior Design & Architecture Marbella | Ambience",
-    template: "%s | Ambience Home Design",
+    default: siteMeta.title,
+    template: `%s | ${site.fullName}`,
   },
-  description: site.description,
-  metadataBase: new URL("https://ambiencehomedesign.com"),
+  description: siteMeta.description,
 };
 
 export default function RootLayout({
@@ -33,10 +32,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${display.variable} ${body.variable} antialiased`}>
-        <SiteHeader />
-        <main>{children}</main>
+    <html lang="en" className={`${tenor.variable} ${epilogue.variable}`}>
+      <body className="min-h-[100dvh] bg-bg font-body text-ink antialiased">
+        <Providers>{children}</Providers>
         <SiteFooter />
       </body>
     </html>

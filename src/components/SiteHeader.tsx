@@ -1,12 +1,29 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { nav, site } from "@/content/site";
+import Link from "next/link";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { List, X } from "@phosphor-icons/react";
+import { BrandLogo } from "./BrandLogo";
+import { ButtonLink } from "./ButtonLink";
+import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
 
-export function SiteHeader() {
-  const [open, setOpen] = useState(false);
+const primaryNav = [
+  { label: "Projects", href: "/projects" },
+  { label: "Services", href: "/services" },
+  { label: "About", href: "/about" },
+  { label: "Andrea Böck & The Team", href: "/team" },
+  { label: "Contact", href: "/contact" },
+];
+
+type SiteHeaderProps = {
+  overMedia?: boolean;
+};
+
+export function SiteHeader({ overMedia = false }: SiteHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -22,107 +39,93 @@ export function SiteHeader() {
     };
   }, [open]);
 
+  const solid = scrolled || open || !overMedia;
+  const onDark = overMedia && !solid;
+
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-500 ease-out ${
-        scrolled || open
-          ? "bg-bg/95 text-ink backdrop-blur-md border-b border-line"
-          : "bg-transparent text-bg"
+      className={`fixed inset-x-0 top-0 z-50 transition-[background-color] duration-mid ease-out ${
+        solid ? "bg-bg/92 backdrop-blur-sm" : "bg-transparent"
       }`}
     >
-      <div className="container-pad flex h-20 items-center justify-between gap-6 lg:h-24">
-        <Link href="/" className="group focus-ring" onClick={() => setOpen(false)}>
-          <span className="font-display text-2xl tracking-[0.08em] sm:text-[1.75rem]">
-            {site.name.toUpperCase()}
-          </span>
-          <span
-            className={`mt-0.5 block text-[0.65rem] uppercase tracking-[0.28em] ${
-              scrolled || open ? "text-muted" : "text-bg/80"
-            }`}
-          >
-            Home Design
-          </span>
-        </Link>
+      <div className="mx-auto flex max-w-content items-center justify-between px-6 py-5 md:px-10 md:py-6">
+        <BrandLogo onDark={onDark} priority />
 
-        <nav className="hidden items-center gap-7 xl:flex" aria-label="Primary">
-          {nav.map((item) => (
-            <Link
+        <nav
+          aria-label="Primary"
+          className="hidden items-center gap-8 lg:flex"
+        >
+          {primaryNav.map((item, i) => (
+            <motion.div
               key={item.href}
-              href={item.href}
-              className={`text-[0.8rem] tracking-wide transition-opacity hover:opacity-70 focus-ring ${
-                scrolled ? "text-ink" : "text-bg"
-              }`}
+              initial={reduce ? false : { opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.12 + i * 0.06, duration: DURATION.mid, ease: EASE_OUT_EXPO }}
             >
-              {item.label}
-            </Link>
+              <Link
+                href={item.href}
+                className={`nav-link text-sm tracking-wide transition-opacity duration-fast ease-out hover:opacity-70 ${
+                  onDark ? "text-on-void" : "text-ink"
+                }`}
+              >
+                {item.label}
+              </Link>
+            </motion.div>
           ))}
-          <Link
+          <ButtonLink
             href="/appointment"
-            className={`ml-2 border px-4 py-2 text-[0.75rem] tracking-wide transition-colors focus-ring ${
-              scrolled
-                ? "border-ink/20 text-ink hover:bg-ink hover:text-bg"
-                : "border-bg/40 text-bg hover:bg-bg hover:text-ink"
-            }`}
+            variant={onDark ? "ghost-dark" : "solid"}
           >
-            Request an appointment
-          </Link>
+            Request a meeting
+          </ButtonLink>
         </nav>
 
         <button
           type="button"
-          className="xl:hidden focus-ring px-2 py-2"
+          className={`lg:hidden ${onDark ? "text-on-void" : "text-ink"}`}
           aria-expanded={open}
           aria-controls="mobile-nav"
           aria-label={open ? "Close menu" : "Open menu"}
           onClick={() => setOpen((v) => !v)}
         >
-          <span className="sr-only">Menu</span>
-          <span className="flex w-6 flex-col gap-1.5">
-            <span
-              className={`h-px w-full transition-transform duration-300 ${
-                scrolled || open ? "bg-ink" : "bg-bg"
-              } ${open ? "translate-y-[7px] rotate-45" : ""}`}
-            />
-            <span
-              className={`h-px w-full transition-opacity duration-300 ${
-                scrolled || open ? "bg-ink" : "bg-bg"
-              } ${open ? "opacity-0" : ""}`}
-            />
-            <span
-              className={`h-px w-full transition-transform duration-300 ${
-                scrolled || open ? "bg-ink" : "bg-bg"
-              } ${open ? "-translate-y-[7px] -rotate-45" : ""}`}
-            />
-          </span>
+          {open ? <X size={26} weight="light" /> : <List size={26} weight="light" />}
         </button>
       </div>
 
-      <div
-        id="mobile-nav"
-        className={`xl:hidden overflow-hidden border-t border-line bg-bg text-ink transition-[max-height] duration-500 ease-out ${
-          open ? "max-h-[80vh]" : "max-h-0 border-transparent"
-        }`}
-      >
-        <nav className="container-pad flex flex-col gap-1 py-6" aria-label="Mobile">
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="py-3 text-lg font-display focus-ring"
-              onClick={() => setOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
-          <Link
-            href="/appointment"
-            className="mt-4 border border-ink/20 px-4 py-3 text-center text-sm focus-ring"
-            onClick={() => setOpen(false)}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            id="mobile-nav"
+            className="border-t border-line bg-bg px-6 py-8 lg:hidden"
+            initial={reduce ? false : { opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={reduce ? undefined : { opacity: 0, height: 0 }}
+            transition={{ duration: DURATION.mid, ease: EASE_OUT_EXPO }}
           >
-            Request an appointment
-          </Link>
-        </nav>
-      </div>
+            <nav className="flex flex-col gap-5">
+              {primaryNav.map((item, i) => (
+                <motion.div
+                  key={item.href}
+                  initial={reduce ? false : { opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.07, duration: DURATION.mid, ease: EASE_OUT_EXPO }}
+                >
+                  <Link
+                    href={item.href}
+                    className="font-display text-2xl tracking-tight text-ink"
+                    onClick={() => setOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                </motion.div>
+              ))}
+              <ButtonLink href="/appointment" className="mt-2 w-full">
+                Request a meeting
+              </ButtonLink>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
