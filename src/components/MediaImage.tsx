@@ -2,6 +2,7 @@
 
 import Image, { type ImageProps } from "next/image";
 import { useState } from "react";
+import { resolveMediaSrc } from "@/lib/media";
 
 type MediaImageProps = Omit<ImageProps, "src"> & {
   src: string;
@@ -11,6 +12,9 @@ type MediaImageProps = Omit<ImageProps, "src"> & {
  * Local `/media` and `/brand` assets bypass the Next image optimizer.
  * Turbopack `/_next/image` often returns 200 with Content-Length: 0 for
  * local JPEGs; keep serving files directly until that is fixed upstream.
+ *
+ * On Vercel, bulky `/media` files are excluded from the deploy and remapped
+ * to the live ambiencehomedesign.com CDN via `resolveMediaSrc`.
  *
  * Defaults favour LCP and bandwidth: async decode, high fetch priority only
  * when `priority` is set, lazy load otherwise. Callers that warm below-fold
@@ -34,7 +38,7 @@ export function MediaImage({
   ...rest
 }: MediaImageProps) {
   const [failed, setFailed] = useState(false);
-  const usable = typeof src === "string" ? src.trim() : "";
+  const usable = resolveMediaSrc(typeof src === "string" ? src.trim() : "");
 
   if (!usable || failed) return null;
 

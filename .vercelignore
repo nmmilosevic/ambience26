@@ -1,0 +1,7 @@
+# Vercel Hobby static upload limit is 100MB. Full photography + PDFs in
+# public/media are ~490MB and already live on ambiencehomedesign.com —
+# resolveMediaSrc remaps them at runtime when NEXT_PUBLIC_REMOTE_MEDIA=1.
+# Keep small partner marks/SVGs in the deploy for SupplierExplorer.
+public/media/**
+!public/media/partners/
+!public/media/partners/**

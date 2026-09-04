@@ -8,6 +8,7 @@ import { MediaImage } from "@/components/MediaImage";
 import { ButtonLink } from "@/components/ButtonLink";
 import { downloadsContent } from "@/content/downloads";
 import { pageHeroImage } from "@/content/atmosphere";
+import { resolveMediaSrc } from "@/lib/media";
 import { STAGGER } from "@/lib/motion";
 
 export const metadata: Metadata = { title: "Downloads" };
@@ -77,11 +78,13 @@ export default function DownloadsPage() {
               </p>
             </Reveal>
             <ul className="mt-10 space-y-4">
-              {downloadsContent.publicFiles.map((file, i) => (
+              {downloadsContent.publicFiles.map((file, i) => {
+                const href = resolveMediaSrc(file.href) || file.href;
+                return (
                 <li key={file.href}>
                   <Reveal variant="text" delay={i * STAGGER.item}>
                     <a
-                      href={file.href}
+                      href={href}
                       target="_blank"
                       rel="noreferrer"
                       className="text-lg tracking-tight underline-offset-4 hover:underline"
@@ -90,7 +93,8 @@ export default function DownloadsPage() {
                     </a>
                   </Reveal>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           </div>
         </div>
