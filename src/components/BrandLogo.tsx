@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { MouseEvent } from "react";
 import { MediaImage } from "./MediaImage";
 
@@ -22,6 +22,7 @@ export function BrandLogo({
   className = "",
   priority = false,
 }: BrandLogoProps) {
+  const pathname = usePathname();
   const router = useRouter();
   const sizeClass = "h-9 w-auto md:h-10";
 
@@ -30,6 +31,11 @@ export function BrandLogo({
       return;
     }
     event.preventDefault();
+    // Same-route push is a no-op in the App Router — scroll home instead.
+    if (pathname === "/") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     router.push("/");
   };
 
