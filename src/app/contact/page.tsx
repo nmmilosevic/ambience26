@@ -144,7 +144,7 @@ export default function ContactPage() {
 
       {/* Contact paths: phone, email, social as one composed band */}
       <section className="relative overflow-hidden bg-void py-20 md:py-28">
-        <div className="pointer-events-none absolute inset-0 opacity-25">
+        <ImageReveal className="pointer-events-none absolute inset-0 opacity-25">
           <MediaImage
             src={CONTACT_IMAGE}
             alt=""
@@ -152,7 +152,7 @@ export default function ContactPage() {
             sizes="100vw"
             className="object-cover"
           />
-        </div>
+        </ImageReveal>
         <div className="relative z-10 mx-auto max-w-content px-5 md:px-8">
           <TextReveal as="h2" className="font-display text-h2 text-on-void">
             Reach the studio

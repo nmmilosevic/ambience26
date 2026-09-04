@@ -82,24 +82,26 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="mt-14">
+          <Reveal delay={STAGGER.cta} className="mt-14">
             <ButtonLink href="/projects" variant="outline">
               View all projects
             </ButtonLink>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {voice && (
         <section className="relative overflow-hidden bg-void py-24 md:py-32">
           {voice.image && (
-            <MediaImage
-              src={voice.image}
-              alt=""
-              fill
-              sizes="100vw"
-              className="object-cover opacity-30"
-            />
+            <ImageReveal className="absolute inset-0 opacity-30">
+              <MediaImage
+                src={voice.image}
+                alt=""
+                fill
+                sizes="100vw"
+                className="object-cover"
+              />
+            </ImageReveal>
           )}
           <div className="relative z-10 mx-auto max-w-content px-5 md:px-8">
             <blockquote className="max-w-3xl">
@@ -154,11 +156,11 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <div className="mt-12">
+          <Reveal delay={STAGGER.cta} className="mt-12">
             <ButtonLink href="/services" variant="outline">
               Explore services
             </ButtonLink>
-          </div>
+          </Reveal>
         </div>
       </section>
 

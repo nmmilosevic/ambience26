@@ -214,16 +214,18 @@ export default function ServicesPage() {
             {servicesContent.awards.items.map((award, i) =>
               award.image ? (
               <li key={award.image}>
-                <ImageReveal delay={i * STAGGER.item}>
-                  <div className="relative aspect-square overflow-hidden p-4 md:p-5">
-                    <MediaImage
-                      src={award.image}
-                      alt={award.alt}
-                      fill
-                      sizes="160px"
-                      className="object-contain p-2"
-                    />
-                  </div>
+                <ImageReveal
+                  delay={i * STAGGER.item}
+                  className="relative aspect-square overflow-hidden p-4 md:p-5"
+                >
+                  <MediaImage
+                    src={award.image}
+                    alt={award.alt}
+                    fill
+                    loading="eager"
+                    sizes="160px"
+                    className="object-contain p-2"
+                  />
                 </ImageReveal>
               </li>
               ) : null,

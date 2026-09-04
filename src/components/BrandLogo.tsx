@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import type { MouseEvent } from "react";
 import { MediaImage } from "./MediaImage";
 
 type BrandLogoProps = {
@@ -18,15 +22,24 @@ export function BrandLogo({
   className = "",
   priority = false,
 }: BrandLogoProps) {
+  const router = useRouter();
   const sizeClass = "h-9 w-auto md:h-10";
+
+  const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
+      return;
+    }
+    event.preventDefault();
+    router.push("/");
+  };
 
   return (
     <Link
       href="/"
       aria-label="Ambience Home Design"
+      onClick={onClick}
       className={`inline-flex items-center ${className}`}
     >
-      {/* Black mark — light surfaces (hidden when onDark or OS dark) */}
       <MediaImage
         src="/brand/ambience-logo-dark.png"
         alt="Ambience Home Design"
@@ -35,7 +48,6 @@ export function BrandLogo({
         priority={priority}
         className={`${sizeClass} ${onDark ? "hidden" : "dark:hidden"}`}
       />
-      {/* White mark — void / over media / OS dark */}
       <MediaImage
         src="/brand/ambience-logo-light.png"
         alt="Ambience Home Design"

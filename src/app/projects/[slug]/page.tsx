@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { preload } from "react-dom";
 import { MediaImage } from "@/components/MediaImage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -38,28 +39,36 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     (src) => Boolean(src?.trim()),
   );
   const story = getProjectStory(slug);
-  // First gallery plate is the next LCP after the hero; preload while the
-  // title still holds attention so ImageReveal is not waiting on a cold fetch.
+  // Hero owns LCP / high fetch. Warm the first unique gallery plate at low
+  // priority so the wipe is not cold when the story ends — without fighting
+  // the hero for bandwidth (Next `priority` would inject another high preload).
   const leadGallery = images[0];
+  const warmGallery =
+    leadGallery && leadGallery !== project.image ? leadGallery : images[1];
+  if (project.image?.trim()) {
+    preload(project.image, { as: "image", fetchPriority: "high" });
+  }
+  if (warmGallery?.trim()) {
+    preload(warmGallery, { as: "image", fetchPriority: "low" });
+  }
   const related = projects
     .filter((p) => p.category === project.category && p.slug !== project.slug)
     .slice(0, 3);
 
   return (
     <PageShell overMedia>
-      {leadGallery && leadGallery !== project.image ? (
-        <link rel="preload" as="image" href={leadGallery} fetchPriority="high" />
-      ) : null}
       <section className="relative min-h-[75dvh] overflow-hidden bg-void">
-        <MediaImage
-          src={project.image}
-          alt={project.displayTitle}
-          fill
-          priority
-          decoding="sync"
-          sizes="100vw"
-          className="object-cover"
-        />
+        <ImageReveal className="absolute inset-0">
+          <MediaImage
+            src={project.image}
+            alt={project.displayTitle}
+            fill
+            priority
+            decoding="sync"
+            sizes="100vw"
+            className="object-cover"
+          />
+        </ImageReveal>
         <HeroVeil className="z-[1]" />
         <div className="relative z-10 mx-auto flex min-h-[75dvh] max-w-content flex-col justify-end px-5 pb-16 pt-28 md:px-8">
           <Reveal variant="text">
@@ -101,12 +110,12 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           */}
           <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2 md:gap-8">
             {images.map((src, i) => {
-              // First three: eager so wipe has pixels ready as the user scrolls
-              // from the hero. Rest stay lazy to avoid saturating the connection.
-              const isLead = i === 0;
-              const isWarm = i < 3;
+              // First row (2) eager so wipe has pixels; rest lazy. No Next
+              // `priority` here — that fights the hero LCP preload.
+              const isWarm = i < 2;
               const isLastOdd =
                 images.length % 2 === 1 && i === images.length - 1;
+              const sameAsHero = src === project.image;
 
               return (
                 <ImageReveal
@@ -122,10 +131,9 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                     src={src}
                     alt={`${project.displayTitle} - view ${i + 1}`}
                     fill
-                    priority={isLead}
-                    loading={isWarm ? "eager" : "lazy"}
-                    fetchPriority={isLead ? "high" : isWarm ? "low" : "auto"}
-                    decoding={isLead ? "sync" : "async"}
+                    loading={isWarm || sameAsHero ? "eager" : "lazy"}
+                    fetchPriority="auto"
+                    decoding="async"
                     sizes={
                       isLastOdd
                         ? "(max-width: 768px) 100vw, min(100vw, 76rem)"
@@ -150,16 +158,18 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               {related.map((item, i) => (
                 <li key={item.slug}>
                   <Link href={item.href} className="group block">
-                    <ImageReveal delay={i * STAGGER.item}>
-                      <div className="relative aspect-[16/10] overflow-hidden">
-                        <MediaImage
-                          src={item.image}
-                          alt={item.displayTitle}
-                          fill
-                          sizes="33vw"
-                          className="object-cover transition duration-slow group-hover:scale-[1.03]"
-                        />
-                      </div>
+                    <ImageReveal
+                      delay={i * STAGGER.item}
+                      className="relative aspect-[16/10] overflow-hidden"
+                    >
+                      <MediaImage
+                        src={item.image}
+                        alt={item.displayTitle}
+                        fill
+                        loading="lazy"
+                        sizes="(max-width: 640px) 100vw, 33vw"
+                        className="object-cover transition duration-slow group-hover:scale-[1.03]"
+                      />
                     </ImageReveal>
                     <TextReveal
                       as="p"

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
+import { useMotionReady } from "./MotionReady";
 
 type ImageRevealProps = {
   children: React.ReactNode;
@@ -25,21 +26,21 @@ function visibleRatio(el: HTMLElement) {
   return Math.max(0, Math.min(1, visible / rect.height));
 }
 
+function routeVeilActive() {
+  return Boolean(document.querySelector(".page-veil:not([hidden])"));
+}
+
 /**
  * Clip-path wipe + scale settle. Transform / clip only — no blur on imagery.
  *
- * Important: the outer wrapper is NOT clipped for IntersectionObserver.
- * Observing a clipped node with amount > 0 never fires (ratio stays 0),
- * which left photography permanently hidden.
+ * Waits for the session loader (and any route veil) so the wipe plays on
+ * screen — not under an overlay, which made first paint look like a pop.
  *
- * Also: do not wipe until nested images have pixels. Lazy + clip-path races
- * open the wipe on an empty frame; waiting for media avoids a blank stamp
- * before photography arrives.
+ * The outer wrapper is NOT clipped for IntersectionObserver.
+ * Observing a clipped node with amount > 0 never fires (ratio stays 0).
  *
- * Failsafe: if IntersectionObserver never reports (headless, odd overflow,
- * loader timing), force the wipe open so photography cannot stay blank forever.
- * Near-viewport failsafes stay conservative so off-screen roster tiles wait
- * for scroll instead of wiping early.
+ * Do not wipe until nested images have pixels (lazy + clip races).
+ * Visibility (`forced` / inView) never bypasses that media gate.
  */
 export function ImageReveal({
   children,
@@ -48,20 +49,64 @@ export function ImageReveal({
   amount = 0.01,
 }: ImageRevealProps) {
   const reduce = useReducedMotion();
+  const appReady = useMotionReady();
   const ref = useRef<HTMLDivElement>(null);
+  const [armed, setArmed] = useState(false);
   const [mediaReady, setMediaReady] = useState(false);
   const [forced, setForced] = useState(false);
-  // Strict amounts need the real viewport — expanded margin would undercut 60%.
-  // Early default keeps a soft root margin so home/projects start a beat early.
+
   const inView = useInView(ref, {
     once: true,
     amount,
     margin: amount >= 0.5 ? "0px" : "25% 0px 25% 0px",
   });
 
-  // Above-the-fold tiles: do not wait on IO if already past the amount threshold
-  // (strict) or loosely near the fold (early default).
+  // Arm only after loader + first paint of the clipped state.
+  // If a route veil is covering, wait until it has mostly cleared.
   useEffect(() => {
+    if (reduce) {
+      setArmed(true);
+      return;
+    }
+    if (!appReady) {
+      setArmed(false);
+      return;
+    }
+
+    let cancelled = false;
+    let raf1 = 0;
+    let raf2 = 0;
+    let timer = 0;
+
+    const arm = () => {
+      if (!cancelled) setArmed(true);
+    };
+
+    const afterPaint = () => {
+      raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(arm);
+      });
+    };
+
+    if (routeVeilActive()) {
+      // pageIn cover + a beat of pageOut so the wipe starts as the linen lifts
+      const waitMs = (DURATION.pageIn + DURATION.pageOut * 0.45) * 1000;
+      timer = window.setTimeout(afterPaint, waitMs);
+    } else {
+      afterPaint();
+    }
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [appReady, reduce]);
+
+  // Above-the-fold visibility — only meaningful after we are armed to reveal.
+  useEffect(() => {
+    if (!armed) return;
     const el = ref.current;
     if (!el || typeof window === "undefined") return;
 
@@ -79,18 +124,16 @@ export function ImageReveal({
     };
 
     markIfVisible();
-    // After fonts / SiteLoader layout shifts
-    const t1 = window.setTimeout(markIfVisible, 200);
-    const t2 = window.setTimeout(markIfVisible, 800);
+    const t1 = window.setTimeout(markIfVisible, 120);
+    const t2 = window.setTimeout(markIfVisible, 480);
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
     };
-  }, [amount]);
+  }, [amount, armed]);
 
-  // Near-viewport failsafe — open stuck above-fold tiles without wiping
-  // off-screen cards early (team roster should wait for scroll).
   useEffect(() => {
+    if (!armed) return;
     const id = window.setTimeout(() => {
       const el = ref.current;
       if (!el) {
@@ -101,8 +144,6 @@ export function ImageReveal({
       const vh = window.innerHeight || document.documentElement.clientHeight;
       if (rect.height <= 0 || rect.width <= 0) return;
       if (amount >= 0.5) {
-        // Only force when already meeting the scroll threshold — never early-open
-        // roster tiles that are still mostly below the fold.
         if (visibleRatio(el) >= amount) setForced(true);
         return;
       }
@@ -111,14 +152,14 @@ export function ImageReveal({
       }
     }, 1600);
     return () => window.clearTimeout(id);
-  }, [amount]);
+  }, [amount, armed]);
 
-  // Ultimate failsafe if IntersectionObserver never reports
   useEffect(() => {
     const id = window.setTimeout(() => setForced(true), 12000);
     return () => window.clearTimeout(id);
   }, []);
 
+  // Track nested <img> decode so the wipe never opens on empty paint.
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
@@ -128,26 +169,47 @@ export function ImageReveal({
     const done = new WeakSet<HTMLImageElement>();
     const attached = new WeakSet<HTMLImageElement>();
 
+    const markReady = () => {
+      if (settled) return;
+      settled = true;
+      setMediaReady(true);
+    };
+
     const finishOne = (img: HTMLImageElement) => {
       if (done.has(img)) return;
       done.add(img);
       pending = Math.max(0, pending - 1);
-      if (pending <= 0 && !settled) {
-        settled = true;
-        setMediaReady(true);
+      if (pending <= 0) markReady();
+    };
+
+    const afterPixels = (img: HTMLImageElement) => {
+      if (typeof img.decode === "function") {
+        img
+          .decode()
+          .catch(() => undefined)
+          .finally(() => finishOne(img));
+        return;
       }
+      finishOne(img);
     };
 
     const watch = (img: HTMLImageElement) => {
       if (attached.has(img)) return;
       attached.add(img);
+      // Img arrived after an empty-tree settle — re-gate until pixels exist.
+      if (settled) {
+        settled = false;
+        setMediaReady(false);
+      }
       pending += 1;
       if (img.complete && img.naturalWidth > 0) {
-        finishOne(img);
+        afterPixels(img);
         return;
       }
-      img.addEventListener("load", () => finishOne(img));
-      img.addEventListener("error", () => finishOne(img));
+      const onLoad = () => afterPixels(img);
+      const onError = () => finishOne(img);
+      img.addEventListener("load", onLoad);
+      img.addEventListener("error", onError);
     };
 
     const scan = () => {
@@ -157,39 +219,33 @@ export function ImageReveal({
       return true;
     };
 
-    // Next/Image may commit the <img> after this effect runs
-    if (!scan()) {
-      const raf = requestAnimationFrame(() => {
-        if (!scan()) {
-          // No img yet (or text-only slot) — do not block the wipe forever
-          setMediaReady(true);
-        }
-      });
-      const late = window.setTimeout(() => {
-        if (!settled) {
-          scan();
-          if (!settled) setMediaReady(true);
-        }
-      }, 400);
-      return () => {
-        cancelAnimationFrame(raf);
-        window.clearTimeout(late);
-      };
-    }
+    scan();
+    const mo = new MutationObserver(() => {
+      scan();
+    });
+    mo.observe(root, { childList: true, subtree: true });
 
+    // Next/Image may mount <img> a frame late — wait briefly before treating
+    // an empty tree as "ready", so we do not arm the wipe then lose the gate.
+    const late = window.setTimeout(() => {
+      if (!scan() && pending <= 0) markReady();
+    }, 400);
     const timeout = window.setTimeout(() => {
-      if (!settled) {
-        settled = true;
-        setMediaReady(true);
-      }
+      markReady();
     }, 4000);
 
     return () => {
+      mo.disconnect();
+      window.clearTimeout(late);
       window.clearTimeout(timeout);
     };
   }, []);
 
-  const show = Boolean(reduce || forced || (inView && mediaReady));
+  // Pixels first, then visibility — never wipe an empty frame because
+  // above-the-fold `forced` raced ahead of the network.
+  const show = Boolean(
+    reduce || (armed && mediaReady && (forced || inView)),
+  );
 
   if (reduce) {
     return (
@@ -199,13 +255,19 @@ export function ImageReveal({
     );
   }
 
-  // Outer wrapper stays unclipped so IntersectionObserver can measure layout.
-  // Clip lives on the inner node only.
+  const fillParent = /\babsolute\b/.test(className);
+
   return (
     <div ref={ref} className={className}>
-      <div className="h-full w-full overflow-hidden">
+      <div
+        className={
+          fillParent
+            ? "absolute inset-0 overflow-hidden"
+            : "h-full w-full overflow-hidden"
+        }
+      >
         <motion.div
-          className="h-full w-full"
+          className={fillParent ? "absolute inset-0" : "h-full w-full"}
           initial={{ clipPath: "inset(0 100% 0 0)" }}
           animate={
             show
@@ -220,7 +282,9 @@ export function ImageReveal({
           style={{ willChange: "clip-path" }}
         >
           <motion.div
-            className="relative h-full w-full"
+            className={
+              fillParent ? "absolute inset-0" : "relative h-full w-full"
+            }
             initial={{ scale: 1.035, x: -10 }}
             animate={show ? { scale: 1, x: 0 } : { scale: 1.035, x: -10 }}
             transition={{

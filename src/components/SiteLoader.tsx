@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { BrandLogo } from "./BrandLogo";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
+import {
+  LOADER_STORAGE_KEY,
+  signalLoaderDone,
+} from "./MotionReady";
 
-const STORAGE_KEY = "ambience-session-loaded";
 const MIN_HOLD_MS = 1200;
 
 /**
@@ -21,16 +24,19 @@ export function SiteLoader() {
     setMounted(true);
 
     if (reduce) {
+      signalLoaderDone();
       setPhase("done");
       return;
     }
 
     try {
-      if (sessionStorage.getItem(STORAGE_KEY)) {
+      if (sessionStorage.getItem(LOADER_STORAGE_KEY)) {
+        signalLoaderDone();
         setPhase("done");
         return;
       }
     } catch {
+      signalLoaderDone();
       setPhase("done");
       return;
     }
@@ -43,11 +49,7 @@ export function SiteLoader() {
   useEffect(() => {
     if (phase !== "exit") return;
     const id = window.setTimeout(() => {
-      try {
-        sessionStorage.setItem(STORAGE_KEY, "1");
-      } catch {
-        /* ignore */
-      }
+      signalLoaderDone();
       setPhase("done");
     }, DURATION.loader * 1000);
     return () => window.clearTimeout(id);

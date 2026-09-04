@@ -119,9 +119,9 @@ export default function TeamPage() {
             ))}
           </div>
 
-          <div className="mt-16">
+          <Reveal delay={STAGGER.cta} className="mt-16">
             <ButtonLink href="/appointment">Request a meeting</ButtonLink>
-          </div>
+          </Reveal>
         </div>
       </section>
     </PageShell>

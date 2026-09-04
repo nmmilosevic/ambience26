@@ -74,16 +74,18 @@ export default function PressPage() {
               <p className="text-muted">{pressContent.showroom.description}</p>
             </Reveal>
             <Link href={pressContent.showroom.href} className="group mt-8 block">
-              <ImageReveal delay={STAGGER.image}>
-                <div className="relative aspect-[21/9] overflow-hidden">
-                  <MediaImage
-                    src={pressContent.showroom.poster}
-                    alt=""
-                    fill
-                    sizes="100vw"
-                    className="object-cover transition duration-slow group-hover:scale-[1.02]"
-                  />
-                </div>
+              <ImageReveal
+                delay={STAGGER.image}
+                className="relative aspect-[21/9] overflow-hidden"
+              >
+                <MediaImage
+                  src={pressContent.showroom.poster}
+                  alt=""
+                  fill
+                  loading="eager"
+                  sizes="100vw"
+                  className="object-cover transition duration-slow group-hover:scale-[1.02]"
+                />
               </ImageReveal>
               <Reveal variant="text" delay={STAGGER.body2} className="mt-4">
                 <p className="text-sm text-muted underline-offset-4 group-hover:underline">

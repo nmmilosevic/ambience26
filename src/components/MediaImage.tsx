@@ -13,7 +13,9 @@ type MediaImageProps = Omit<ImageProps, "src"> & {
  * local JPEGs; keep serving files directly until that is fixed upstream.
  *
  * Defaults favour LCP and bandwidth: async decode, high fetch priority only
- * when `priority` is set, lazy load otherwise.
+ * when `priority` is set, lazy load otherwise. Callers that warm below-fold
+ * plates should pass `loading="eager"` + `fetchPriority="auto"` — avoid
+ * stacking extra `priority` (Next injects a high preload that fights LCP).
  *
  * Empty or failed sources render nothing — never a broken-image icon or
  * gray stamp for a missing asset.

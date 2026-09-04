@@ -51,54 +51,48 @@ export default function ProjectsPage() {
       </section>
 
       <section className="bg-bg pb-24 md:pb-32">
-        <div className="mx-auto max-w-content space-y-6 px-5 md:px-8">
+        <div className="mx-auto grid max-w-content gap-10 px-5 sm:grid-cols-2 md:gap-8 lg:grid-cols-3 md:px-8">
           {categories.map((cat, i) => {
             const sample = projectsByCategory(cat.id)[0];
             return (
-              <Link
-                key={cat.id}
-                href={cat.href}
-                className="group grid overflow-hidden md:grid-cols-12"
-              >
+              <Link key={cat.id} href={cat.href} className="group block">
                 <ImageReveal
                   delay={i * STAGGER.item}
-                  className="relative aspect-[16/10] md:col-span-7 md:aspect-auto md:min-h-[320px]"
+                  className="relative aspect-[4/5] overflow-hidden"
                 >
                   {sample?.image ? (
                     <MediaImage
                       src={sample.image}
                       alt=""
                       fill
-                      sizes="(max-width: 768px) 100vw, 60vw"
-                      className="object-cover transition duration-slow ease-out group-hover:scale-[1.02]"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition duration-slow ease-out group-hover:scale-[1.03]"
                     />
                   ) : null}
                 </ImageReveal>
-                <div className="flex flex-col justify-center bg-surface px-6 py-10 md:col-span-5 md:px-10">
-                  <TextReveal
-                    as="h2"
-                    delay={i * STAGGER.item + STAGGER.body}
-                    className="font-display text-3xl tracking-tight md:text-4xl"
-                  >
-                    {cat.title}
-                  </TextReveal>
-                  <Reveal
-                    variant="text"
-                    delay={i * STAGGER.item + STAGGER.body2}
-                    className="mt-4"
-                  >
-                    <p className="text-muted">{cat.lead}</p>
-                  </Reveal>
-                  <Reveal
-                    variant="text"
-                    delay={i * STAGGER.item + STAGGER.body3}
-                    className="mt-8"
-                  >
-                    <span className="text-sm tracking-wide group-hover:opacity-70">
-                      Browse {cat.title.toLowerCase()}
-                    </span>
-                  </Reveal>
-                </div>
+                <TextReveal
+                  as="h2"
+                  delay={i * STAGGER.item + STAGGER.body}
+                  className="mt-5 font-display text-h3 tracking-tight"
+                >
+                  {cat.title}
+                </TextReveal>
+                <Reveal
+                  variant="text"
+                  delay={i * STAGGER.item + STAGGER.body2}
+                  className="mt-2"
+                >
+                  <p className="text-sm text-muted md:text-base">{cat.lead}</p>
+                </Reveal>
+                <Reveal
+                  variant="text"
+                  delay={i * STAGGER.item + STAGGER.body3}
+                  className="mt-4"
+                >
+                  <span className="text-sm tracking-wide group-hover:opacity-70">
+                    Browse {cat.title.toLowerCase()}
+                  </span>
+                </Reveal>
               </Link>
             );
           })}

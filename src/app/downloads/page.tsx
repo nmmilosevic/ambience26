@@ -30,16 +30,18 @@ export default function DownloadsPage() {
             {downloadsContent.cards.map((card, i) => (
               <li key={card.title}>
                 {card.image ? (
-                  <ImageReveal delay={i * STAGGER.item}>
-                    <div className="relative aspect-[4/3] overflow-hidden">
-                      <MediaImage
-                        src={card.image}
-                        alt=""
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover"
-                      />
-                    </div>
+                  <ImageReveal
+                    delay={i * STAGGER.item}
+                    className="relative aspect-[4/3] overflow-hidden"
+                  >
+                    <MediaImage
+                      src={card.image}
+                      alt=""
+                      fill
+                      loading="eager"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover"
+                    />
                   </ImageReveal>
                 ) : null}
                 <TextReveal

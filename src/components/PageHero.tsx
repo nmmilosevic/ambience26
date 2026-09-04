@@ -2,6 +2,7 @@ import { ButtonLink } from "./ButtonLink";
 import { TextReveal } from "./TextReveal";
 import { Reveal } from "./Reveal";
 import { MediaImage } from "./MediaImage";
+import { ImageReveal } from "./ImageReveal";
 import { HeroVeil } from "./HeroVeil";
 import { STAGGER } from "@/lib/motion";
 
@@ -23,14 +24,16 @@ export function PageHero({
   if (image?.trim()) {
     return (
       <section className="relative min-h-[70dvh] overflow-hidden bg-void">
-        <MediaImage
-          src={image}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
+        <ImageReveal className="absolute inset-0">
+          <MediaImage
+            src={image}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+        </ImageReveal>
         <HeroVeil className="z-[1]" />
         <div className="relative z-10 mx-auto flex min-h-[70dvh] max-w-content flex-col justify-end px-5 pb-16 pt-28 md:px-8 md:pb-20">
           <TextReveal as="h1" className="font-display text-display text-on-void">

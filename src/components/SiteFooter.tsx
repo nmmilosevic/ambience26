@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { BrandLogo } from "./BrandLogo";
 import { ButtonLink } from "./ButtonLink";
+import { Reveal } from "./Reveal";
 import { legalLinks, locations, site, socialLinks } from "@/content/site";
+import { STAGGER } from "@/lib/motion";
 
 const studioLinks = [
   { label: "Projects", href: "/projects" },
@@ -31,11 +33,11 @@ export function SiteFooter() {
               Interior architecture and turnkey homes from Marbella to international
               commissions.
             </p>
-            <div className="mt-10">
+            <Reveal delay={STAGGER.cta} className="mt-10">
               <ButtonLink href="/appointment" variant="ghost-dark">
                 Request a meeting
               </ButtonLink>
-            </div>
+            </Reveal>
           </div>
 
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 lg:col-span-7 lg:grid-cols-3">

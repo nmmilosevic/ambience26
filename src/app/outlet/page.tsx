@@ -35,16 +35,18 @@ export default function OutletPage() {
                 {category.products.map((product, i) => (
                   <li key={product.name}>
                     {product.image ? (
-                      <ImageReveal delay={i * STAGGER.item}>
-                        <div className="relative aspect-square overflow-hidden">
-                          <MediaImage
-                            src={product.image}
-                            alt={product.name}
-                            fill
-                            sizes="(max-width: 640px) 100vw, 33vw"
-                            className="object-cover"
-                          />
-                        </div>
+                      <ImageReveal
+                        delay={i * STAGGER.item}
+                        className="relative aspect-square overflow-hidden"
+                      >
+                        <MediaImage
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          loading="eager"
+                          sizes="(max-width: 640px) 100vw, 33vw"
+                          className="object-cover"
+                        />
                       </ImageReveal>
                     ) : null}
                     <div className="mt-4">

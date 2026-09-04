@@ -190,8 +190,9 @@ export function MorphHero({ slides }: MorphHeroProps) {
             Sync handoff (no mode="wait"): fast opacity exit, then delayed
             enter so titles never stack readable — still rides the wipe, not
             a dead pause. Absolute layers share one reserved box (no CLS).
+            overflow visible: x handoff must not hard-clip the display type.
           */}
-          <div className="relative min-h-[1.15em] overflow-hidden">
+          <div className="relative min-h-[1.15em] overflow-visible">
             {/* Invisible sizer keeps layout height = current title */}
             <h1
               className="invisible font-display text-display"
@@ -202,7 +203,7 @@ export function MorphHero({ slides }: MorphHeroProps) {
             <AnimatePresence initial={false}>
               <motion.div
                 key={`${slide.slug}-title-${index}`}
-                className="absolute inset-0"
+                className="absolute left-0 top-0 w-full"
                 initial={
                   reduce
                     ? false
@@ -277,20 +278,39 @@ export function MorphHero({ slides }: MorphHeroProps) {
             </motion.p>
           </AnimatePresence>
 
-          <motion.div
-            className="mt-8 flex flex-wrap gap-3"
-            initial={reduce ? false : { opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{
-              duration: DURATION.mid,
-              delay: reduce ? 0 : 0.2,
-              ease: EASE_OUT_EXPO,
-            }}
-          >
-            <ButtonLink href={slide.href} variant="ghost-dark">
-              View project
-            </ButtonLink>
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${slide.slug}-cta-${index}`}
+              className="mt-8 flex flex-wrap gap-3"
+              initial={
+                reduce
+                  ? false
+                  : { opacity: 0, x: forward ? -16 : 16 }
+              }
+              animate={{ opacity: 1, x: 0 }}
+              exit={
+                reduce
+                  ? undefined
+                  : {
+                      opacity: 0,
+                      x: forward ? 10 : -10,
+                      transition: {
+                        duration: bodyExitMs,
+                        ease: EASE_OUT_EXPO,
+                      },
+                    }
+              }
+              transition={{
+                duration: DURATION.hero * 0.85,
+                delay: reduce ? 0 : 0.16,
+                ease: EASE_OUT_EXPO,
+              }}
+            >
+              <ButtonLink href={slide.href} variant="ghost-dark">
+                View project
+              </ButtonLink>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {slides.length > 1 && (
