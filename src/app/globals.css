@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Register the hero wipe head as a real number so mask-image can interpolate.
+ * Unregistered custom properties snap, which made arrow clicks look like a cut.
+ */
+@property --hero-wipe-n {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: -28;
+}
+
 :root {
   /* Marbella showroom: warm limestone, restrained bronze accent */
   --color-bg: oklch(0.975 0.008 85);
@@ -151,6 +161,39 @@ img[data-nimg="fill"] {
  * blown-out marble from punching through on-void copy. The mid-frame
  * stays open so the rooms still lead.
  */
+.hero-wipe-layer {
+  --hero-wipe-n: -28;
+  opacity: 0.85;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  /* Class toggle (not inline style) so @property actually interpolates */
+  transition:
+    --hero-wipe-n 1.7s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 1.224s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-wipe-layer.is-revealed {
+  --hero-wipe-n: 128;
+  opacity: 1;
+}
+
+.hero-wipe-layer[data-instant="true"],
+.hero-wipe-layer[data-reduce="true"] {
+  --hero-wipe-n: 128;
+  opacity: 1;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-wipe-layer {
+    --hero-wipe-n: 128;
+    opacity: 1;
+    transition: none;
+  }
+}
+
 .hero-veil {
   background:
     linear-gradient(

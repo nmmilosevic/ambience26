@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
@@ -31,9 +36,8 @@ type MorphHeroProps = {
 const AUTOPLAY_MS = 4500;
 const PAUSE_AFTER_INTERACT_MS = 6000;
 
-/** Soft feather travel: numeric %; two endpoints only (no mid keyframe = no stall) */
-const WIPE_FROM_N = -28;
-const WIPE_TO_N = 128;
+/** Prevent HMR / StrictMode from stacking autoplay timers. */
+let heroAutoplayTimer = 0;
 
 function softWipeMask(forward: boolean): CSSProperties {
   const axis = forward ? "90deg" : "270deg";
@@ -42,57 +46,137 @@ function softWipeMask(forward: boolean): CSSProperties {
   return {
     WebkitMaskImage: gradient,
     maskImage: gradient,
-    WebkitMaskSize: "100% 100%",
-    maskSize: "100% 100%",
-    WebkitMaskRepeat: "no-repeat",
-    maskRepeat: "no-repeat",
   };
+}
+
+function warmupSrc(src: string) {
+  if (!src || typeof window === "undefined") return;
+  const img = new window.Image();
+  img.decoding = "async";
+  img.src = src;
+}
+
+function HeroWipeSlide({
+  slide,
+  forward,
+  instant,
+  reduce,
+  priority,
+}: {
+  slide: Slide;
+  forward: boolean;
+  instant: boolean;
+  reduce: boolean;
+  priority?: boolean;
+}) {
+  const [revealed, setRevealed] = useState(instant || reduce);
+
+  // Paint the masked start frame, then add .is-revealed so CSS interpolates
+  // --hero-wipe-n. Motion's initial/animate path snaps CSS variables on click.
+  useEffect(() => {
+    if (instant || reduce) {
+      setRevealed(true);
+      return;
+    }
+
+    const id = window.setTimeout(() => setRevealed(true), 32);
+    return () => window.clearTimeout(id);
+  }, [instant, reduce]);
+
+  const shown = instant || reduce || revealed;
+
+  return (
+    <div
+      className={`hero-wipe-layer absolute inset-0 z-[1] overflow-hidden${shown ? " is-revealed" : ""}`}
+      data-instant={instant ? "true" : "false"}
+      data-reduce={reduce ? "true" : "false"}
+      style={softWipeMask(forward)}
+    >
+      {/*
+        Ken Burns: transform-only scale on an isolated layer.
+        translateZ(0) promotes once; no perpetual will-change.
+      */}
+      <motion.div
+        className="relative h-full w-full"
+        style={{ transform: "translateZ(0)" }}
+        initial={reduce || instant ? false : { scale: 1 }}
+        animate={reduce ? { scale: 1 } : { scale: HERO_KEN_BURNS.scaleTo }}
+        transition={
+          reduce
+            ? { duration: 0 }
+            : {
+                duration: HERO_KEN_BURNS.duration,
+                ease: "linear",
+              }
+        }
+      >
+        <MediaImage
+          src={slide.image}
+          alt={slide.title}
+          fill
+          priority={priority}
+          sizes="100vw"
+          className="object-cover"
+        />
+      </motion.div>
+    </div>
+  );
 }
 
 export function MorphHero({ slides }: MorphHeroProps) {
   const [index, setIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState(0);
   const [direction, setDirection] = useState(1);
+  const [hasNavigated, setHasNavigated] = useState(false);
   const reduce = useReducedMotion();
   const slide = slides[index];
   const under = slides[prevIndex] ?? slide;
   const pauseUntil = useRef(0);
+  const wipeUntil = useRef(0);
+  const indexRef = useRef(0);
+  indexRef.current = index;
+
+  const advance = (dir: -1 | 1, fromUser = false) => {
+    if (slides.length < 2) return;
+    if (!fromUser && Date.now() < wipeUntil.current) return;
+    const i = indexRef.current;
+    const next = (i + dir + slides.length) % slides.length;
+    if (next === i) return;
+    wipeUntil.current = Date.now() + DURATION.hero * 1000;
+    setHasNavigated(true);
+    setDirection(dir);
+    setPrevIndex(i);
+    setIndex(next);
+  };
 
   useEffect(() => {
     if (reduce || slides.length < 2) return;
-    const id = window.setInterval(() => {
+    window.clearInterval(heroAutoplayTimer);
+    heroAutoplayTimer = window.setInterval(() => {
       if (Date.now() < pauseUntil.current) return;
-      setDirection(1);
-      setIndex((i) => {
-        setPrevIndex(i);
-        return (i + 1) % slides.length;
-      });
+      advance(1, false);
     }, AUTOPLAY_MS);
-    return () => window.clearInterval(id);
+    return () => window.clearInterval(heroAutoplayTimer);
   }, [reduce, slides.length]);
 
   const go = (dir: -1 | 1) => {
     pauseUntil.current = Date.now() + PAUSE_AFTER_INTERACT_MS;
-    setDirection(dir);
-    setIndex((i) => {
-      setPrevIndex(i);
-      return (i + dir + slides.length) % slides.length;
-    });
+    advance(dir, true);
   };
 
   const forward = direction >= 0;
   const bodyExitMs = DURATION.slow * EXIT_RATIO;
+  const instantEnter = !hasNavigated;
   /** Skip underlayer while it would duplicate the LCP slide (same src twice). */
-  const showUnder = under.image !== slide.image;
+  const showUnder = !instantEnter && under.image !== slide.image;
 
-  // Warm the next carousel frame so the wipe does not wait on network
+  // Warm both neighbors so arrow clicks do not wait on network
   useEffect(() => {
     if (reduce || slides.length < 2) return;
     const next = slides[(index + 1) % slides.length];
-    if (!next?.image) return;
-    const img = new window.Image();
-    img.decoding = "async";
-    img.src = next.image;
+    const prev = slides[(index - 1 + slides.length) % slides.length];
+    if (next?.image) warmupSrc(next.image);
+    if (prev?.image) warmupSrc(prev.image);
   }, [index, reduce, slides]);
 
   return (
@@ -113,74 +197,14 @@ export function MorphHero({ slides }: MorphHeroProps) {
         </div>
       ) : null}
 
-      <AnimatePresence initial={false}>
-        <motion.div
-          key={`${slide.slug}-${index}`}
-          className="absolute inset-0 z-[1] overflow-hidden"
-          style={reduce ? undefined : softWipeMask(forward)}
-          initial={
-            reduce
-              ? { opacity: 0 }
-              : {
-                  ["--hero-wipe-n" as string]: WIPE_FROM_N,
-                  opacity: 0.85,
-                }
-          }
-          animate={
-            reduce
-              ? { opacity: 1 }
-              : {
-                  // Mask + opacity only: continuous ease-out, no filter/scale thrash
-                  ["--hero-wipe-n" as string]: WIPE_TO_N,
-                  opacity: 1,
-                }
-          }
-          exit={reduce ? { opacity: 0 } : { opacity: 1 }}
-          transition={
-            reduce
-              ? { duration: DURATION.fast, ease: EASE_OUT_EXPO }
-              : {
-                  ["--hero-wipe-n" as string]: {
-                    duration: DURATION.hero,
-                    ease: EASE_OUT_EXPO,
-                  },
-                  opacity: {
-                    duration: DURATION.hero * 0.72,
-                    ease: EASE_OUT_EXPO,
-                  },
-                }
-          }
-        >
-          {/*
-            Ken Burns: transform-only scale on an isolated layer.
-            translateZ(0) promotes once; no perpetual will-change.
-          */}
-          <motion.div
-            className="relative h-full w-full"
-            initial={reduce ? false : { scale: 1 }}
-            animate={
-              reduce ? { scale: 1 } : { scale: HERO_KEN_BURNS.scaleTo }
-            }
-            transition={
-              reduce
-                ? { duration: 0 }
-                : {
-                    duration: HERO_KEN_BURNS.duration,
-                    ease: "linear",
-                  }
-            }
-          >
-            <MediaImage
-              src={slide.image}
-              alt={slide.title}
-              fill
-              priority={index === 0}
-              sizes="100vw"
-              className="object-cover"
-            />
-          </motion.div>
-        </motion.div>
-      </AnimatePresence>
+      <HeroWipeSlide
+        key={`hero-slide-${index}`}
+        slide={slide}
+        forward={forward}
+        instant={Boolean(reduce) || instantEnter}
+        reduce={Boolean(reduce)}
+        priority={index === 0}
+      />
 
       <HeroVeil className="z-[2]" />
 
@@ -202,7 +226,7 @@ export function MorphHero({ slides }: MorphHeroProps) {
             </h1>
             <AnimatePresence initial={false}>
               <motion.div
-                key={`${slide.slug}-title-${index}`}
+                key={`hero-title-${index}`}
                 className="absolute left-0 top-0 w-full"
                 initial={
                   reduce
@@ -248,7 +272,7 @@ export function MorphHero({ slides }: MorphHeroProps) {
 
           <AnimatePresence mode="wait">
             <motion.p
-              key={`${slide.slug}-lead-${index}`}
+              key={`hero-lead-${index}`}
               className="mt-5 max-w-xl text-lead text-on-void/90"
               initial={
                 reduce
@@ -280,7 +304,7 @@ export function MorphHero({ slides }: MorphHeroProps) {
 
           <AnimatePresence mode="wait">
             <motion.div
-              key={`${slide.slug}-cta-${index}`}
+              key={`hero-cta-${index}`}
               className="mt-8 flex flex-wrap gap-3"
               initial={
                 reduce
