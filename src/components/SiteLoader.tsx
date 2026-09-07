@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { BrandLogo } from "./BrandLogo";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
@@ -11,37 +11,33 @@ import {
 
 const MIN_HOLD_MS = 1200;
 
+function shouldSkipLoader(reduce: boolean | null) {
+  if (reduce) return true;
+  try {
+    return Boolean(sessionStorage.getItem(LOADER_STORAGE_KEY));
+  } catch {
+    return true;
+  }
+}
+
 /**
- * Mount-gated so SSR HTML never includes the overlay (avoids blank-screen
- * flashes and hydration mismatches with sessionStorage).
+ * Overlay is in the SSR HTML so a first-session visit is covered on first
+ * paint — not after hydration. Returning visitors / reduced-motion skip via a
+ * blocking inline script + CSS (html[data-loader="done"]), then this component
+ * unmounts in useLayoutEffect before the browser paints.
  */
 export function SiteLoader() {
   const reduce = useReducedMotion();
-  const [mounted, setMounted] = useState(false);
-  const [phase, setPhase] = useState<"idle" | "loading" | "exit" | "done">("idle");
+  const [phase, setPhase] = useState<"loading" | "exit" | "done">("loading");
 
-  useEffect(() => {
-    setMounted(true);
-
-    if (reduce) {
+  useLayoutEffect(() => {
+    if (shouldSkipLoader(reduce)) {
       signalLoaderDone();
       setPhase("done");
       return;
     }
 
-    try {
-      if (sessionStorage.getItem(LOADER_STORAGE_KEY)) {
-        signalLoaderDone();
-        setPhase("done");
-        return;
-      }
-    } catch {
-      signalLoaderDone();
-      setPhase("done");
-      return;
-    }
-
-    setPhase("loading");
+    document.documentElement.setAttribute("data-loader", "pending");
     const minHold = window.setTimeout(() => setPhase("exit"), MIN_HOLD_MS);
     return () => window.clearTimeout(minHold);
   }, [reduce]);
@@ -55,17 +51,18 @@ export function SiteLoader() {
     return () => window.clearTimeout(id);
   }, [phase]);
 
-  if (!mounted || phase === "idle" || phase === "done") return null;
+  if (phase === "done") return null;
 
   return (
     <motion.div
+      data-site-loader=""
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-bg"
       initial={{ opacity: 1 }}
       animate={phase === "exit" ? { opacity: 0 } : { opacity: 1 }}
       transition={{ duration: DURATION.loader, ease: EASE_OUT_EXPO }}
       aria-hidden={phase === "exit"}
     >
-      <BrandLogo />
+      <BrandLogo priority />
       <motion.div
         className="mt-10 h-px w-24 origin-left bg-accent/40"
         initial={{ scaleX: 0 }}

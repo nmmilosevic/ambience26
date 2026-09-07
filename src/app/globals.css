@@ -75,6 +75,36 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/*
+ * Session loader is in the SSR HTML so first visits are covered on first paint.
+ * A blocking inline script sets html[data-loader] from sessionStorage / reduced-motion
+ * before paint — returning visitors must never flash the overlay.
+ */
+[data-site-loader] {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+}
+
+html[data-loader="pending"] {
+  overflow: hidden;
+}
+
+html[data-loader="done"] [data-site-loader] {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-site-loader] {
+    display: none !important;
+  }
+}
+
 .font-display {
   font-family: var(--font-display), system-ui, sans-serif;
   letter-spacing: -0.02em;

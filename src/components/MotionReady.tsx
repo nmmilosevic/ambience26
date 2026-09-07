@@ -9,9 +9,12 @@ import {
   type ReactNode,
 } from "react";
 import { useReducedMotion } from "motion/react";
+import {
+  LOADER_DONE_EVENT,
+  LOADER_STORAGE_KEY,
+} from "@/lib/session-loader";
 
-export const LOADER_STORAGE_KEY = "ambience-session-loaded";
-export const LOADER_DONE_EVENT = "ambience:loader-done";
+export { LOADER_DONE_EVENT, LOADER_STORAGE_KEY };
 
 const MotionReadyContext = createContext(true);
 
@@ -65,5 +68,6 @@ export function signalLoaderDone() {
   } catch {
     /* ignore */
   }
+  document.documentElement.setAttribute("data-loader", "done");
   window.dispatchEvent(new Event(LOADER_DONE_EVENT));
 }
